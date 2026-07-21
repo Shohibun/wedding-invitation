@@ -1,0 +1,16 @@
+[data-theme="floral"] {
+  --background: oklch(0.97 0.02 150); /* Very soft sage green / off-white */
+  --foreground: oklch(0.3 0.05 150); /* Deep forest green */
+  --primary: oklch(0.6 0.1 10); /* Soft rose/pink */
+  --primary-foreground: oklch(0.98 0 0);
+
+  --wedding-font-heading: var(--font-great-vibes), cursive;
+  --wedding-font-body: var(--font-lato), sans-serif;
+}
+
+.dark[data-theme="floral"] {
+  --background: oklch(0.2 0.05 150); /* Dark forest green */
+  --foreground: oklch(0.95 0.02 150); /* Soft green/white */
+  --primary: oklch(0.7 0.15 10); /* Brighter rose */
+  --primary-foreground: oklch(0.2 0.05 150);
+}

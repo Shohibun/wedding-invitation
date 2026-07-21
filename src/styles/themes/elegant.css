@@ -1,0 +1,41 @@
+[data-theme="elegant"] {
+  /* Surface & Background */
+  --background: oklch(0.98 0.01 70); /* Warm cream */
+  --foreground: oklch(0.2 0.05 40);
+  --surface: oklch(1 0 0); /* Pure white cards */
+  --surface-foreground: oklch(0.2 0.05 40);
+
+  /* Primary, Secondary, Accent */
+  --primary: oklch(0.6 0.1 40); /* Rose gold */
+  --primary-foreground: oklch(0.98 0.01 70);
+  --secondary: oklch(0.9 0.02 70); /* Light warm gray */
+  --secondary-foreground: oklch(0.3 0.05 40);
+  --accent: oklch(0.85 0.05 50); /* Soft blush */
+  --accent-foreground: oklch(0.2 0.05 40);
+
+  /* Border */
+  --border: oklch(0.85 0.02 70);
+
+  /* Typography */
+  --wedding-font-heading: var(--font-playfair), serif;
+  --wedding-font-body: var(--font-lato), sans-serif;
+}
+
+.dark[data-theme="elegant"] {
+  /* Surface & Background */
+  --background: oklch(0.15 0.02 40); /* Dark brown */
+  --foreground: oklch(0.95 0.02 70);
+  --surface: oklch(0.2 0.02 40);
+  --surface-foreground: oklch(0.95 0.02 70);
+
+  /* Primary, Secondary, Accent */
+  --primary: oklch(0.7 0.12 40); /* Brighter rose gold */
+  --primary-foreground: oklch(0.15 0.02 40);
+  --secondary: oklch(0.25 0.02 40);
+  --secondary-foreground: oklch(0.9 0.02 70);
+  --accent: oklch(0.3 0.05 50);
+  --accent-foreground: oklch(0.95 0.02 70);
+
+  /* Border */
+  --border: oklch(0.25 0.02 40);
+}

@@ -1,0 +1,16 @@
+[data-theme="minimal"] {
+  --background: oklch(1 0 0); /* Pure white */
+  --foreground: oklch(0.1 0 0); /* Almost black */
+  --primary: oklch(0.2 0 0); /* Dark gray/black */
+  --primary-foreground: oklch(1 0 0);
+
+  --wedding-font-heading: var(--font-inter), sans-serif;
+  --wedding-font-body: var(--font-inter), sans-serif;
+}
+
+.dark[data-theme="minimal"] {
+  --background: oklch(0.1 0 0); /* Almost black */
+  --foreground: oklch(0.95 0 0); /* Light gray */
+  --primary: oklch(0.95 0 0); /* White/Light gray */
+  --primary-foreground: oklch(0.1 0 0);
+}
