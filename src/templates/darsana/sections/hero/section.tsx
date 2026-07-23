@@ -12,10 +12,10 @@ import { heroVariants, itemVariants } from "./animations";
 import { formatDate } from "@/lib/utils/format-date";
 
 export function HeroSection({ className }: HeroSectionProps) {
-  const data =
-    useTemplateData<
-      Record<string, any>
-    > /* eslint-disable-line @typescript-eslint/no-explicit-any */();
+  const data = useTemplateData<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Record<string, any>
+  >();
   const couple = data?.couple;
   const events = data?.events;
   const primaryEvent = events?.find((e: { id: string }) => e.id === "resepsi") || events?.[0];

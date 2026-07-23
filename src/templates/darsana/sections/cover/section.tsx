@@ -14,10 +14,10 @@ import { coverVariants, itemVariants } from "./animations";
 import { formatDate } from "@/lib/utils/format-date";
 
 export function CoverSection({ className }: CoverSectionProps) {
-  const data =
-    useTemplateData<
-      Record<string, any>
-    > /* eslint-disable-line @typescript-eslint/no-explicit-any */();
+  const data = useTemplateData<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Record<string, any>
+  >();
   const couple = data?.couple;
   const events = data?.events;
   const firstEventDate = events?.[0]?.date;
@@ -27,7 +27,7 @@ export function CoverSection({ className }: CoverSectionProps) {
 
   const handleOpenInvitation = () => {
     if (audioRef.current) {
-      audioRef.current.play().catch((err) => console.log("Audio play failed:", err));
+      audioRef.current.play().catch((err) => console.error("Audio play failed:", err));
     }
   };
 

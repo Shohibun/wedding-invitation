@@ -15,10 +15,10 @@ import { eventVariants, itemVariants } from "./animations";
 import { formatDate } from "@/lib/utils/format-date";
 
 export function EventSection({ className }: EventSectionProps) {
-  const data =
-    useTemplateData<
-      Record<string, any>
-    > /* eslint-disable-line @typescript-eslint/no-explicit-any */();
+  const data = useTemplateData<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Record<string, any>
+  >();
   const events = data?.events || [];
 
   if (!events.length) return null;
@@ -40,8 +40,9 @@ export function EventSection({ className }: EventSectionProps) {
               (
                 event: Record<
                   string,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   any
-                > /* eslint-disable-line @typescript-eslint/no-explicit-any */
+                >
               ) => {
                 const startDate = new Date(event.date);
                 const endDate = new Date(event.endDate);

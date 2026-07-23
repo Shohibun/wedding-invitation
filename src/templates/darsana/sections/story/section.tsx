@@ -13,10 +13,10 @@ import { storyVariants, itemVariants } from "./animations";
 import { formatDate } from "@/lib/utils/format-date";
 
 export function StorySection({ className }: StorySectionProps) {
-  const data =
-    useTemplateData<
-      Record<string, any>
-    > /* eslint-disable-line @typescript-eslint/no-explicit-any */();
+  const data = useTemplateData<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Record<string, any>
+  >();
   const story = data?.story || [];
 
   if (!story.length) return null;
@@ -48,8 +48,9 @@ export function StorySection({ className }: StorySectionProps) {
                 (
                   item: Record<
                     string,
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     any
-                  > /* eslint-disable-line @typescript-eslint/no-explicit-any */,
+                  >,
                   idx: number
                 ) => {
                   const isEven = idx % 2 === 0;

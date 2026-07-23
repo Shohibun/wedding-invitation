@@ -11,10 +11,10 @@ import { Text } from "@/components/typography/text";
 import { countdownVariants, boxVariants } from "./animations";
 
 export function CountdownSection({ className }: CountdownSectionProps) {
-  const data =
-    useTemplateData<
-      Record<string, any>
-    > /* eslint-disable-line @typescript-eslint/no-explicit-any */();
+  const data = useTemplateData<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Record<string, any>
+  >();
   const targetDateStr = data?.events?.[0]?.date;
   const targetDate = targetDateStr
     ? new Date(targetDateStr).getTime()

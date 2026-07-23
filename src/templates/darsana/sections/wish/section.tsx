@@ -14,10 +14,10 @@ import { wishVariants } from "./animations";
 import { useTemplateData } from "@/templates/core/hooks";
 
 export function WishSection({ className }: WishSectionProps) {
-  const data =
-    useTemplateData<
-      Record<string, any>
-    > /* eslint-disable-line @typescript-eslint/no-explicit-any */();
+  const data = useTemplateData<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Record<string, any>
+  >();
   const initialWishes = data?.wishes || [];
 
   const [wishes, setWishes] =

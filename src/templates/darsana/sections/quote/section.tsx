@@ -9,10 +9,10 @@ import { Text } from "@/components/typography/text";
 import { quoteVariants } from "./animations";
 
 export function QuoteSection({ className }: QuoteSectionProps) {
-  const data =
-    useTemplateData<
-      Record<string, any>
-    > /* eslint-disable-line @typescript-eslint/no-explicit-any */();
+  const data = useTemplateData<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Record<string, any>
+  >();
   const quote = data?.quote;
 
   if (!quote) return null;

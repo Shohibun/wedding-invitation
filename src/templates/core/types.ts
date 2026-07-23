@@ -108,3 +108,11 @@ export interface RegisteredSection {
   enabled: boolean;
   lazy: boolean;
 }
+
+export interface TemplatePackage {
+  manifest: TemplateManifest;
+  defaultConfig: TemplateConfig;
+  theme: TemplateTheme;
+  Layout: React.ComponentType<{ children: React.ReactNode }>;
+  sectionRegistry: Record<string, RegisteredSection>;
+}

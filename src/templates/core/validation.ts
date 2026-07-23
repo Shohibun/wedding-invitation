@@ -5,8 +5,8 @@ import {
   TemplateManifest,
   TemplateConfig,
   TemplateTheme,
+  TemplatePackage,
 } from "./types";
-import { TemplatePackage } from "./registry";
 
 /**
  * Developer utility to validate a template package at runtime.

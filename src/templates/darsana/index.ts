@@ -1,4 +1,4 @@
-import { TemplatePackage } from "../core/registry";
+import { TemplatePackage } from "../core/types";
 import { darsanaManifest } from "./manifest";
 import { darsanaConfig } from "./config";
 import { darsanaTheme } from "./theme";

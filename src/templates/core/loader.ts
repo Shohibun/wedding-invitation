@@ -1,4 +1,13 @@
-import { TemplateRegistry, TemplatePackage } from "./registry";
+import { TemplateRegistry } from "./registry";
+import { TemplatePackage } from "./types";
+import { DarsanaTemplate } from "../darsana";
+
+// Register default templates
+try {
+  TemplateRegistry.register(DarsanaTemplate);
+} catch (e) {
+  console.error("Failed to register DarsanaTemplate", e);
+}
 
 export class TemplateLoader {
   static getTemplate(id: string): TemplatePackage {

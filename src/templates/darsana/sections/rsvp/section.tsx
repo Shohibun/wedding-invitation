@@ -31,8 +31,8 @@ export function RsvpSection({ className }: RsvpSectionProps) {
     resolver: zodResolver(rsvpSchema),
   });
 
-  const onSubmit = (data: RsvpFormValues) => {
-    console.log("Mock RSVP Submission:", data);
+  const onSubmit = (_data: RsvpFormValues) => {
+    // We intentionally removed console.log for production readiness
     setIsSubmitted(true);
   };
 

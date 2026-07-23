@@ -11,16 +11,19 @@ export function useIntersectionObserver(
     const element = ref?.current;
     if (!element) return;
 
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsIntersecting(entry.isIntersecting);
-      if (entry.isIntersecting) {
-        setHasIntersected(true);
-      }
-    }, options);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsIntersecting(entry.isIntersecting);
+        if (entry.isIntersecting) {
+          setHasIntersected(true);
+        }
+      },
+      { root: options.root, rootMargin: options.rootMargin, threshold: options.threshold }
+    );
 
     observer.observe(element);
     return () => observer.disconnect();
-  }, [ref, options.threshold, options.rootMargin]);
+  }, [ref, options.root, options.rootMargin, options.threshold]);
 
   return { isIntersecting, hasIntersected };
 }

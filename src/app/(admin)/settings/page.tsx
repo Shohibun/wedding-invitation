@@ -23,7 +23,7 @@ export default function SettingsPage() {
             description="This will clear all edge caches immediately. This action cannot be undone."
             confirmText="Clear Cache"
             destructive
-            onConfirm={() => console.log("Cache cleared")}
+            onConfirm={() => {}}
             trigger={<Button variant="destructive">Clear System Cache</Button>}
           />
         </SectionCard>

@@ -98,10 +98,8 @@ export default function TemplateEnginePlayground() {
           {Object.values(template.sectionRegistry).map(
             (
               section:
-                | Record<
-                    string,
-                    unknown
-                  > /* eslint-disable-line @typescript-eslint/no-explicit-any */
+                | Record<string, unknown>
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 | any
             ) => (
               <GlassCard key={section.id} className="p-4 flex justify-between items-center">

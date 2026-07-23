@@ -17,10 +17,10 @@ import { SectionTitle } from "@/components/typography/section-title";
 import { galleryVariants } from "./animations";
 
 export function GallerySection({ className }: GallerySectionProps) {
-  const data =
-    useTemplateData<
-      Record<string, any>
-    > /* eslint-disable-line @typescript-eslint/no-explicit-any */();
+  const data = useTemplateData<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Record<string, any>
+  >();
   const gallery = data?.gallery || [];
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);

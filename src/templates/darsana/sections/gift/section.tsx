@@ -14,10 +14,10 @@ import { Button } from "@/components/ui/button";
 import { giftVariants, cardVariants } from "./animations";
 
 export function GiftSection({ className }: GiftSectionProps) {
-  const data =
-    useTemplateData<
-      Record<string, any>
-    > /* eslint-disable-line @typescript-eslint/no-explicit-any */();
+  const data = useTemplateData<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Record<string, any>
+  >();
   const gifts = data?.gifts || [];
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -51,8 +51,9 @@ export function GiftSection({ className }: GiftSectionProps) {
               (
                 gift: Record<
                   string,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   any
-                > /* eslint-disable-line @typescript-eslint/no-explicit-any */
+                >
               ) => {
                 if (gift.type === "qr") {
                   return (

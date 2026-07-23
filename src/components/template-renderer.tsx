@@ -15,6 +15,7 @@ import { Container } from "@/components/layout/container";
 
 interface TemplateRendererProps {
   themeId: string;
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Record<string, any>;
 }

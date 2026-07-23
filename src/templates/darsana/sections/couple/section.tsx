@@ -13,10 +13,10 @@ import { SectionTitle } from "@/components/typography/section-title";
 import { coupleVariants, cardVariants } from "./animations";
 
 export function CoupleSection({ className }: CoupleSectionProps) {
-  const data =
-    useTemplateData<
-      Record<string, any>
-    > /* eslint-disable-line @typescript-eslint/no-explicit-any */();
+  const data = useTemplateData<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Record<string, any>
+  >();
   const couple = data?.couple;
 
   if (!couple) return null;

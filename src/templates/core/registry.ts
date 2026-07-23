@@ -1,14 +1,5 @@
-import { TemplateManifest, TemplateConfig, TemplateTheme } from "./types";
-import { DarsanaTemplate } from "../darsana";
+import { TemplateManifest, TemplateConfig, TemplateTheme, TemplatePackage } from "./types";
 import { validateTemplate } from "./validation";
-
-export interface TemplatePackage {
-  manifest: TemplateManifest;
-  defaultConfig: TemplateConfig;
-  theme: TemplateTheme;
-  Layout: React.ComponentType<{ children: React.ReactNode }>;
-  sectionRegistry: Record<string, import("./types").RegisteredSection>;
-}
 
 const templates = new Map<string, TemplatePackage>();
 
@@ -24,10 +15,3 @@ export const TemplateRegistry = {
   getAll: (): TemplatePackage[] => Array.from(templates.values()),
   has: (id: string): boolean => templates.has(id),
 };
-
-// Register Darsana
-try {
-  TemplateRegistry.register(DarsanaTemplate);
-} catch (e) {
-  console.error("Failed to register DarsanaTemplate", e);
-}

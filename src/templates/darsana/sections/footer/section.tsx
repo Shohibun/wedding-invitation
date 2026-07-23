@@ -8,10 +8,10 @@ import { Container } from "@/components/layout/container";
 import { Text } from "@/components/typography/text";
 
 export function FooterSection({ className }: FooterSectionProps) {
-  const data =
-    useTemplateData<
-      Record<string, any>
-    > /* eslint-disable-line @typescript-eslint/no-explicit-any */();
+  const data = useTemplateData<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Record<string, any>
+  >();
   const couple = data?.couple;
 
   return (
