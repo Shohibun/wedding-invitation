@@ -50,7 +50,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${lato.variable} ${inter.variable} ${cinzel.variable} ${montserrat.variable} ${greatVibes.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-body">
+      <body className="min-h-full flex flex-col font-body" suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <WeddingThemeProvider defaultTheme="elegant">{children}</WeddingThemeProvider>
         </ThemeProvider>

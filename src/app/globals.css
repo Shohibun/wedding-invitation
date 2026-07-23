@@ -3,10 +3,10 @@
 @import "shadcn/tailwind.css";
 
 /* Wedding Themes */
-@import "./themes/elegant.css";
-@import "./themes/minimal.css";
-@import "./themes/luxury.css";
-@import "./themes/floral.css";
+@import "../styles/themes/elegant.css";
+@import "../styles/themes/minimal.css";
+@import "../styles/themes/luxury.css";
+@import "../styles/themes/floral.css";
 
 @custom-variant dark (&:is(.dark *));
 
