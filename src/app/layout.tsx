@@ -12,6 +12,11 @@ import {
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { WeddingThemeProvider } from "@/providers/wedding-theme-provider";
+import { AuthProvider } from "@/providers/auth-provider";
+import { AuthService } from "@/features/auth/service";
+import { AuthRepository } from "@/features/auth/repository";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -39,11 +44,30 @@ export const metadata: Metadata = {
   description: "Create your beautiful wedding invitation",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+      },
+    }
+  );
+
+  const authRepository = new AuthRepository(supabase);
+  const authService = new AuthService(authRepository);
+
+  const { data: session } = await authService.getSession();
+  const { data: user } = await authService.getUser();
+
   return (
     <html
       lang="en"
@@ -51,8 +75,17 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${lato.variable} ${inter.variable} ${cinzel.variable} ${montserrat.variable} ${greatVibes.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-body" suppressHydrationWarning>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <WeddingThemeProvider defaultTheme="elegant">{children}</WeddingThemeProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <WeddingThemeProvider>
+            <AuthProvider initialSession={session} initialUser={user}>
+              {children}
+            </AuthProvider>
+          </WeddingThemeProvider>
         </ThemeProvider>
       </body>
     </html>

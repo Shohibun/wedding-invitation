@@ -33,8 +33,6 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
       ? {
           slug: initialData.slug,
           theme: initialData.theme,
-          video_url: initialData.video_url,
-          music_url: initialData.music_url,
           music_auto_play: initialData.music_auto_play,
           locale: initialData.locale,
           status: initialData.status,
@@ -156,16 +154,8 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
         </div>
       </SectionCard>
 
-      <SectionCard title="Media & Settings" description="Background music and locale settings.">
+      <SectionCard title="Settings" description="General configuration settings.">
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field>
-            <FieldLabel>Background Music URL</FieldLabel>
-            <Input placeholder="https://..." {...form.register("music_url")} />
-            {form.formState.errors.music_url && (
-              <FieldError>{form.formState.errors.music_url.message}</FieldError>
-            )}
-          </Field>
-
           <Controller
             control={form.control}
             name="locale"

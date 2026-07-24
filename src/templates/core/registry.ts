@@ -1,4 +1,4 @@
-import { TemplateManifest, TemplateConfig, TemplateTheme, TemplatePackage } from "./types";
+import { TemplatePackage } from "./types";
 import { validateTemplate } from "./validation";
 
 const templates = new Map<string, TemplatePackage>();

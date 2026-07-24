@@ -3,8 +3,6 @@ export interface Invitation {
   user_id: string;
   slug: string;
   theme: string;
-  video_url: string | null;
-  music_url: string | null;
   music_auto_play: boolean;
   locale: string;
   sections_order: string[];

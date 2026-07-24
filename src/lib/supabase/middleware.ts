@@ -1,5 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { AuthRepository } from "@/features/auth/repository";
+
+const GUEST_ROUTES = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
+];
+
+const PROTECTED_ROUTES = ["/dashboard", "/invitations", "/settings", "/templates"];
 
 /**
  * Middleware handler for Supabase.
@@ -32,20 +43,46 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
+  // We use AuthRepository directly because we only need the user and profile
+  const repo = new AuthRepository(supabase);
+  const user = await repo.getUser().catch(() => null);
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const pathname = request.nextUrl.pathname;
 
-  // Basic Protection Route Example
-  // If user is not logged in and tries to access dashboard, redirect to login
-  if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
+  // 1. Redirect guest from protected routes
+  const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
+  if (isProtectedRoute && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
+  }
+
+  // 2. Redirect authenticated from guest routes
+  const isGuestRoute = GUEST_ROUTES.some((route) => pathname.startsWith(route));
+  if (isGuestRoute && user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  // 3. Root route redirect
+  if (pathname === "/") {
+    if (user) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
+    // Else let them pass to landing page
+  }
+
+  // 4. Role checking for protected routes
+  if (isProtectedRoute && user && user.profile) {
+    // Only owner is active for now, everything else is blocked
+    if (user.profile.role !== "owner") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/unauthorized";
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

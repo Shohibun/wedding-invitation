@@ -52,8 +52,6 @@ export class InvitationService {
       user_id: original.user_id,
       slug: newSlug,
       theme: original.theme,
-      video_url: original.video_url,
-      music_url: original.music_url,
       music_auto_play: original.music_auto_play,
       locale: original.locale,
       sections_order: original.sections_order,

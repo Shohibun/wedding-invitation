@@ -8,8 +8,7 @@ export const personSchema = z.object({
   father_name: z.string().optional(),
   mother_name: z.string().optional(),
   description: z.string().nullable().optional(),
-  instagram_username: z.string().nullable().optional(),
-  photo_url: z.string().url().nullable().optional(),
+  instagram_username: z.string().max(50).nullable().optional(),
 });
 
 export type PersonInput = z.infer<typeof personSchema>;
