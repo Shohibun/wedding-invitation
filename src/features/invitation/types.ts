@@ -9,6 +9,7 @@ export interface Invitation {
   status: "draft" | "published" | "archived";
   published_at: string | null;
   is_public: boolean;
+  draft_data?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }

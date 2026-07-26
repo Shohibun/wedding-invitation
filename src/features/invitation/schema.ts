@@ -10,6 +10,7 @@ export const invitationSchema = z.object({
   status: z.enum(["draft", "published", "archived"]).optional(),
   published_at: z.string().nullable().optional(),
   is_public: z.boolean().optional(),
+  draft_data: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type InvitationInput = z.infer<typeof invitationSchema>;
