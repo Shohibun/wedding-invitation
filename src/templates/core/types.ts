@@ -1,4 +1,12 @@
 import { z } from "zod";
+import { TemplateManifest } from "./manifest";
+export * from "./manifest";
+export * from "./capabilities";
+export * from "./version";
+import { ThemeTokens, ThemeTokensSchema } from "../themes/tokens";
+import { VariantPackage } from "./variants";
+export type { ThemeTokens };
+export { ThemeTokensSchema };
 
 export type SectionId =
   | "cover"
@@ -17,6 +25,7 @@ export type SectionId =
 // Template Config
 export const TemplateConfigSchema = z.object({
   version: z.number().min(1).default(1),
+  preset: z.string().default("classic"),
   theme: z.enum(["light", "dark", "system"]).default("system"),
   typography: z
     .object({
@@ -58,44 +67,25 @@ export const TemplateConfigSchema = z.object({
         .array(z.string())
         .default(["cover", "hero", "couple", "event", "gallery", "rsvp", "footer"]),
       order: z.array(z.string()).optional(),
+      hidden: z.array(z.string()).default([]),
+      locked: z.array(z.string()).default([]),
+      variants: z.record(z.string(), z.string()).default({}), // Maps sectionId -> variantId
     })
     .default({
       enabled: ["cover", "hero", "couple", "event", "gallery", "rsvp", "footer"],
+      hidden: [],
+      locked: [],
+      variants: {},
     }),
 });
 
 export type TemplateConfig = z.infer<typeof TemplateConfigSchema>;
 
-// Template Manifest
-export const TemplateManifestSchema = z.object({
-  id: z.string().min(1),
-  name: z.string().min(1),
-  description: z.string(),
-  version: z.string(),
-  author: z.string(),
-  thumbnail: z.string().optional(),
-  supportedSections: z.array(z.string()),
-  defaultTheme: z.enum(["light", "dark", "system"]).default("light"),
-});
-
-export type TemplateManifest = z.infer<typeof TemplateManifestSchema>;
-
 // Template Theme
 export const TemplateThemeSchema = z.object({
   name: z.string(),
-  cssVariables: z
-    .object({
-      "--primary": z.string().optional(),
-      "--secondary": z.string().optional(),
-      "--radius": z.string().optional(),
-      "--shadow-sm": z.string().optional(),
-      "--blur-md": z.string().optional(),
-      "--border-width": z.string().optional(),
-      "--transition-fast": z.string().optional(),
-      "--z-modal": z.string().optional(),
-      // Allow any other valid CSS var
-    })
-    .catchall(z.string()),
+  tokens: ThemeTokensSchema,
+  cssVariables: z.record(z.string(), z.string()),
 });
 
 export type TemplateTheme = z.infer<typeof TemplateThemeSchema>;
@@ -105,6 +95,7 @@ export interface RegisteredSection {
   id: SectionId;
   displayName: string;
   component: React.ComponentType<Record<string, unknown>>;
+  variants?: Record<string, VariantPackage>;
   enabled: boolean;
   lazy: boolean;
 }

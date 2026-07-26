@@ -4,6 +4,7 @@ export type SaveStatus = "saved" | "saving" | "draft" | "published" | "unsaved";
 export interface BuilderState {
   invitationId: string | null;
   templateId: string | null;
+  previewTemplateId: string | null; // In-memory preview override (Sprint 18)
   selectedSection: string | null;
   selectedField: string | null;
   previewMode: boolean;
@@ -24,6 +25,7 @@ export type BuilderAction =
       type: "INIT_BUILDER";
       payload: { invitationId: string; templateId: string; initialData?: Record<string, unknown> };
     }
+  | { type: "SET_PREVIEW_TEMPLATE"; payload: string | null }
   | { type: "UPDATE_SECTION"; payload: { section: string; data: unknown } }
   | { type: "SET_SECTION"; payload: string | null }
   | { type: "SET_FIELD"; payload: string | null }

@@ -1,8 +1,7 @@
+import { TemplateManifestSchema, TemplateManifest } from "./manifest";
 import {
-  TemplateManifestSchema,
   TemplateConfigSchema,
   TemplateThemeSchema,
-  TemplateManifest,
   TemplateConfig,
   TemplateTheme,
   TemplatePackage,
@@ -17,6 +16,13 @@ export function validateManifest(manifest: unknown): manifest is TemplateManifes
 }
 
 export function validateConfig(config: unknown): config is TemplateConfig {
+  // Ensure config is strictly JSON serializable
+  try {
+    const jsonStr = JSON.stringify(config);
+    JSON.parse(jsonStr);
+  } catch (_e) {
+    throw new Error("Config must be strictly JSON serializable.");
+  }
   TemplateConfigSchema.parse(config);
   return true;
 }
@@ -32,13 +38,13 @@ export function validateTemplate(pkg: TemplatePackage): boolean {
     validateConfig(pkg.defaultConfig);
     validateTheme(pkg.theme);
 
-    if (!pkg.Layout) {
-      throw new Error(`Template ${pkg.manifest.id} is missing a Layout component.`);
+    if (typeof pkg.Layout !== "function" && typeof pkg.Layout !== "object") {
+      throw new Error(`Template ${pkg.manifest.id} is missing a valid Layout component.`);
     }
 
     return true;
   } catch (error) {
-    console.error(`Validation failed for template package.`, error);
+    console.error(`Validation failed for template package:`, error);
     throw error;
   }
 }

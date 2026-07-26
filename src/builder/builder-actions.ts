@@ -2,6 +2,7 @@ import { BuilderAction, BuilderState } from "./builder-types";
 
 export const BUILDER_ACTIONS = {
   INIT_BUILDER: "INIT_BUILDER",
+  SET_PREVIEW_TEMPLATE: "SET_PREVIEW_TEMPLATE",
   UPDATE_SECTION: "UPDATE_SECTION",
   SET_SECTION: "SET_SECTION",
   SET_FIELD: "SET_FIELD",
@@ -23,6 +24,10 @@ export const builderActionCreators = {
   ): BuilderAction => ({
     type: "INIT_BUILDER",
     payload: { invitationId, templateId, initialData },
+  }),
+  setPreviewTemplate: (templateId: string | null): BuilderAction => ({
+    type: "SET_PREVIEW_TEMPLATE",
+    payload: templateId,
   }),
   updateSection: (section: string, data: unknown): BuilderAction => ({
     type: "UPDATE_SECTION",

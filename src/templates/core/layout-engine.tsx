@@ -3,12 +3,14 @@
 import * as React from "react";
 import { useTemplate } from "./hooks";
 import { SectionId } from "./types";
+import { VariantResolver } from "./variants/resolver";
 
 export function LayoutEngine() {
   const { config, sectionRegistry } = useTemplate();
 
   const enabledSections = config.sections.enabled as SectionId[];
   const order = (config.sections.order || enabledSections) as SectionId[];
+  const hiddenSections = (config.sections.hidden || []) as SectionId[];
 
   // Deduplicate and filter sections that are both ordered and enabled
   const uniqueOrderedSections = Array.from(new Set(order));
@@ -30,7 +32,15 @@ export function LayoutEngine() {
           );
         }
 
-        const SectionComponent = registered.component;
+        // Skip rendering if the section is hidden by the user
+        if (hiddenSections.includes(sectionId)) {
+          return null;
+        }
+
+        // Dynamically resolve the component (either default or requested variant)
+        const requestedVariant = config.sections.variants?.[sectionId];
+        const SectionComponent = VariantResolver.resolveComponent(registered, requestedVariant);
+
         return <SectionComponent key={sectionId} />;
       })}
     </div>

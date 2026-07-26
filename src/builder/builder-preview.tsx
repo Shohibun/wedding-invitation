@@ -1,7 +1,7 @@
 "use client";
 
 import { useBuilder } from "./builder-hooks";
-import { TemplateLoader } from "@/templates/core/loader";
+import { TemplateResolver } from "@/templates/core/resolver";
 import { TemplateProvider } from "@/templates/core/template-context";
 import { usePreviewSync } from "./preview/preview-sync";
 import { mockData } from "@/templates/darsana/mock"; // Placeholder for Sprint 11D DB Data
@@ -13,9 +13,9 @@ export function BuilderPreview() {
   // For Sprint 11C, mockData acts as the original DB data
   const mergedData = usePreviewSync(mockData as Record<string, unknown>);
 
-  // Dynamically resolve the template based on builder state
-  const templateId = state.templateId || "darsana";
-  const template = TemplateLoader.getTemplate(templateId);
+  // Dynamically resolve the template based on builder state (preview override or actual template)
+  const templateId = state.previewTemplateId || state.templateId || "darsana";
+  const template = TemplateResolver.resolveSync(templateId);
 
   if (!template) {
     return (

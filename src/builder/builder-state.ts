@@ -3,6 +3,7 @@ import { BuilderState, BuilderAction } from "./builder-types";
 export const initialBuilderState: BuilderState = {
   invitationId: null,
   templateId: null,
+  previewTemplateId: null,
   selectedSection: null,
   selectedField: null,
   previewMode: false,
@@ -23,10 +24,18 @@ export function builderReducer(state: BuilderState, action: BuilderAction): Buil
         ...state,
         invitationId: action.payload.invitationId,
         templateId: action.payload.templateId,
+        previewTemplateId: null,
         workingInvitation: action.payload.initialData || {},
         status: "saved",
         isDirty: false,
       };
+
+    case "SET_PREVIEW_TEMPLATE":
+      return {
+        ...state,
+        previewTemplateId: action.payload,
+      };
+
     case "UPDATE_SECTION":
       return {
         ...state,

@@ -2,6 +2,7 @@ import { TemplateConfig } from "../core/types";
 
 export const darsanaConfig: TemplateConfig = {
   version: 1,
+  preset: "classic",
   theme: "light",
   typography: {
     headingFont: "Playfair Display",
@@ -22,5 +23,8 @@ export const darsanaConfig: TemplateConfig = {
   },
   sections: {
     enabled: ["cover", "hero", "couple", "event", "gallery", "rsvp", "wish", "footer"],
+    hidden: [],
+    locked: ["cover", "footer"], // Example: cover and footer cannot be moved/removed
+    variants: {},
   },
 };

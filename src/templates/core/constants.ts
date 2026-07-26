@@ -2,6 +2,7 @@ import { TemplateConfig } from "./types";
 
 export const DEFAULT_TEMPLATE_CONFIG: TemplateConfig = {
   version: 1,
+  preset: "classic",
   theme: "system",
   typography: {},
   colors: {},
@@ -16,5 +17,8 @@ export const DEFAULT_TEMPLATE_CONFIG: TemplateConfig = {
   },
   sections: {
     enabled: ["cover", "hero", "couple", "event", "gallery", "rsvp", "footer"],
+    hidden: [],
+    locked: [],
+    variants: {},
   },
 };

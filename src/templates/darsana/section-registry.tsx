@@ -2,6 +2,7 @@ import * as React from "react";
 import dynamic from "next/dynamic";
 import { SectionId, RegisteredSection } from "../core/types";
 import { FallbackSection } from "../core/fallback-section";
+import { classicHeroVariant } from "./sections/hero/variants/classic/index";
 
 export const darsanaSectionRegistry: Record<SectionId, RegisteredSection> = {
   cover: {
@@ -21,6 +22,9 @@ export const darsanaSectionRegistry: Record<SectionId, RegisteredSection> = {
       loading: () => <FallbackSection id="hero" />,
       ssr: true,
     }),
+    variants: {
+      classic: classicHeroVariant,
+    },
     enabled: true,
     lazy: true,
   },
