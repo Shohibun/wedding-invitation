@@ -4,7 +4,7 @@ export * from "./manifest";
 export * from "./capabilities";
 export * from "./version";
 import { ThemeTokens, ThemeTokensSchema } from "../themes/tokens";
-import { VariantPackage } from "./variants";
+import { VariantPackage } from "./variants/types";
 export type { ThemeTokens };
 export { ThemeTokensSchema };
 
