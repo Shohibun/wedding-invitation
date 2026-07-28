@@ -1,0 +1,4 @@
+export const INSIGHT_CONSTANTS = {
+  MIN_SESSIONS_FOR_TRENDS: 10,
+  DEFAULT_BASELINE_DAYS: 7,
+} as const;
