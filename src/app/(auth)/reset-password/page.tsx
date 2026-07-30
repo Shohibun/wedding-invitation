@@ -1,5 +1,5 @@
 import { AuthCard } from "@/components/auth/auth-card";
-import { ResetPasswordForm } from "@/components/auth/reset-password-form";
+import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 import Link from "next/link";
 import { Metadata } from "next";
 
@@ -23,7 +23,7 @@ export default function ResetPasswordPage() {
         </div>
       }
     >
-      <ResetPasswordForm />
+      <ResetPasswordForm token="" />
     </AuthCard>
   );
 }

@@ -1,5 +1,5 @@
 import { AuthCard } from "@/components/auth/auth-card";
-import { LoginForm } from "@/components/auth/login-form";
+import { LoginForm } from "@/components/auth/LoginForm";
 import Link from "next/link";
 import { Metadata } from "next";
 import { AuthRedirectReasonType, AUTH_REASON_MESSAGES } from "@/features/auth/constants";
@@ -18,7 +18,7 @@ export default async function LoginPage(props: { searchParams: Promise<{ reason?
     reasonStr && AUTH_REASON_MESSAGES[reasonStr] ? AUTH_REASON_MESSAGES[reasonStr] : null;
 
   // Render destructive alert if expired, else default/success style
-  const isDestructive = reasonStr === "expired";
+  const isDestructive = reasonStr === "session_expired";
 
   return (
     <div className="flex flex-col space-y-4 w-full">

@@ -1,0 +1,9 @@
+export const SECURITY_CONSTANTS = {
+  SESSION_MAX_AGE_DAYS: 30,
+  PASSWORD_EXPIRY_DAYS: 90,
+  SECURITY_SCORE_WEIGHTS: {
+    EMAIL_VERIFIED: 30,
+    RECENT_PASSWORD: 20,
+    TWO_FACTOR: 50, // Ready for future
+  },
+} as const;

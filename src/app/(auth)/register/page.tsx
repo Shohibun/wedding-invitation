@@ -1,5 +1,5 @@
 import { AuthCard } from "@/components/auth/auth-card";
-import { RegisterForm } from "@/components/auth/register-form";
+import { RegisterForm } from "@/components/auth/RegisterForm";
 import Link from "next/link";
 import { Metadata } from "next";
 

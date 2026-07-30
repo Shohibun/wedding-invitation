@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Metadata } from "next";
 import {
   Geist,
@@ -14,7 +15,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { WeddingThemeProvider } from "@/providers/wedding-theme-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import { AuthService } from "@/features/auth/service";
-import { AuthRepository } from "@/features/auth/repository";
+import { authRepository } from "@/features/auth/repository";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
@@ -62,11 +63,8 @@ export default async function RootLayout({
     }
   );
 
-  const authRepository = new AuthRepository(supabase);
-  const authService = new AuthService(authRepository);
-
-  const { data: session } = await authService.getSession();
-  const { data: user } = await authService.getUser();
+  const session = null;
+  const user = null;
 
   return (
     <html

@@ -1,48 +1,62 @@
 import { z } from "zod";
+import { AUTH_PROVIDERS, AUTH_ROLES } from "./constants";
 
-export const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
-  rememberMe: z.boolean().default(false).optional(),
+// Models
+export const AuthUserSchema = z.object({
+  id: z.string().uuid(),
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
+  fullName: z.string().optional(),
+  avatar: z.string().url().optional(),
+  emailVerified: z.boolean().default(false),
+  role: z.enum(AUTH_ROLES).default("authenticated"),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
 });
 
-export const registerSchema = z
-  .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-export const forgotPasswordSchema = z.object({
-  email: z.string().email("Invalid email address"),
+export const SessionSchema = z.object({
+  id: z.string().uuid(),
+  accessToken: z.string(),
+  refreshToken: z.string().optional(),
+  expiresAt: z.number(), // Unix timestamp
+  lastActivity: z.string().datetime(),
+  createdAt: z.string().datetime(),
 });
 
-export const resetPasswordSchema = z
-  .object({
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+export const CredentialSchema = z.object({
+  provider: z.enum(AUTH_PROVIDERS),
+  identifier: z.string(),
+  verified: z.boolean().default(false),
+});
 
-export type LoginInput = z.infer<typeof loginSchema>;
-export type RegisterInput = z.infer<typeof registerSchema>;
-export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
-export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export const AuthenticationResultSchema = z.object({
+  user: AuthUserSchema.nullable(),
+  session: SessionSchema.nullable(),
+  success: z.boolean(),
+  message: z.string().optional(),
+});
+
+// Requests
+export const LoginRequestSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+export const RegisterRequestSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  fullName: z.string().min(2).optional(),
+});
+
+export const ForgotPasswordRequestSchema = z.object({
+  email: z.string().email(),
+});
+
+export const ResetPasswordRequestSchema = z.object({
+  token: z.string().min(1),
+  newPassword: z.string().min(6),
+});
+
+export const VerifyEmailRequestSchema = z.object({
+  token: z.string().min(1),
+});

@@ -1,22 +1,44 @@
 "use client";
 
-import { useAuthContext } from "@/providers/auth-provider";
-import { ProfileHeader } from "@/components/profile/profile-header";
-import { ProfileCard } from "@/components/profile/profile-card";
-import { ProfileForm } from "@/components/profile/profile-form";
-import { PasswordForm } from "@/components/profile/password-form";
-import { DangerZone } from "@/components/profile/danger-zone";
+import { useProfile } from "@/hooks/useProfile";
+import { usePreferences } from "@/hooks/usePreferences";
+import { useDevices } from "@/hooks/useDevices";
+import { useSessions } from "@/hooks/useSessions";
+import { ProfileCard } from "@/components/profile/ProfileCard";
+import { ProfileForm } from "@/components/profile/ProfileForm";
+import { PreferencesForm } from "@/components/profile/PreferencesForm";
+import { DeviceList } from "@/components/profile/DeviceList";
+import { SessionList } from "@/components/profile/SessionList";
+import { ProfileSkeleton } from "@/components/profile/ProfileSkeleton";
+import { ProfileEmptyState } from "@/components/profile/ProfileEmptyState";
 
 export default function ProfileSettingsPage() {
-  const { user } = useAuthContext();
+  const userId = "user-admin-id"; // Mock for now
 
-  if (!user) {
-    return null; // The layout or AuthGuard should handle the loading/unauthenticated states
+  const { profile, loading: profileLoading, updateProfile } = useProfile(userId);
+  const { preferences, loading: prefsLoading, update: updatePrefs } = usePreferences(userId);
+  const { devices, loading: devicesLoading } = useDevices(userId);
+  const { sessions, loading: sessionsLoading, terminate } = useSessions(userId);
+
+  if (profileLoading || prefsLoading || devicesLoading || sessionsLoading) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-8 p-8">
+        <ProfileSkeleton />
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-8 p-8">
+        <ProfileEmptyState />
+      </div>
+    );
   }
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2 mb-8">
+    <div className="flex-1 space-y-8 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between mb-8">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Profile Settings</h2>
           <p className="text-muted-foreground">Manage your account settings and preferences.</p>
@@ -24,25 +46,15 @@ export default function ProfileSettingsPage() {
       </div>
 
       <div className="max-w-4xl mx-auto space-y-8">
-        <ProfileHeader user={user} />
+        <ProfileCard profile={profile} />
 
-        <ProfileCard
-          title="Personal Information"
-          description="Update your personal details and how we can reach you."
-        >
-          <ProfileForm />
-        </ProfileCard>
+        <ProfileForm profile={profile} onSave={updateProfile} />
 
-        <ProfileCard
-          title="Security"
-          description="Update your password to keep your account secure."
-        >
-          <PasswordForm />
-        </ProfileCard>
+        {preferences && <PreferencesForm preferences={preferences} onSave={updatePrefs} />}
 
-        <ProfileCard title="Danger Zone">
-          <DangerZone />
-        </ProfileCard>
+        <DeviceList devices={devices} />
+
+        <SessionList sessions={sessions} onTerminate={terminate} />
       </div>
     </div>
   );

@@ -1,83 +1,61 @@
-import { AuthRepository } from "./repository";
-import { AuthUser, AuthSession, AuthResult } from "./types";
-import { LoginInput, RegisterInput, ForgotPasswordInput, ResetPasswordInput } from "./schema";
+import {
+  AuthenticationResult,
+  ForgotPasswordRequestDTO,
+  LoginRequestDTO,
+  RegisterRequestDTO,
+  ResetPasswordRequestDTO,
+  VerifyEmailRequestDTO,
+} from "./types";
+import { authRepository } from "./repository";
+import { AuthValidator } from "../../lib/auth/auth-validator";
+import { authEventBus } from "../../lib/auth/auth-events";
+import { AuthEvent } from "./events";
+import {
+  LoginRequestSchema,
+  RegisterRequestSchema,
+  ForgotPasswordRequestSchema,
+  ResetPasswordRequestSchema,
+  VerifyEmailRequestSchema,
+} from "./schema";
 
-export class AuthService {
-  constructor(private readonly authRepository: AuthRepository) {}
+export const AuthService = {
+  async login(data: LoginRequestDTO): Promise<AuthenticationResult> {
+    const validated = AuthValidator.validateSchema(LoginRequestSchema, data);
+    const result = await authRepository.signIn(validated);
 
-  async getSession(): Promise<AuthResult<AuthSession>> {
-    try {
-      const session = await this.authRepository.getSession();
-      return { data: session, error: null };
-    } catch (error: unknown) {
-      return {
-        data: null,
-        error: error instanceof Error ? error.message : "Failed to get session",
-      };
+    if (result.success) {
+      authEventBus.dispatch(AuthEvent.LOGIN_SUCCESS, result);
+    } else {
+      authEventBus.dispatch(AuthEvent.LOGIN_FAILED, result.message);
     }
-  }
 
-  async getUser(): Promise<AuthResult<AuthUser>> {
-    try {
-      const user = await this.authRepository.getUser();
-      return { data: user, error: null };
-    } catch (error: unknown) {
-      return { data: null, error: error instanceof Error ? error.message : "Failed to get user" };
-    }
-  }
+    return result;
+  },
 
-  async login(
-    payload: LoginInput
-  ): Promise<AuthResult<{ user: AuthUser | null; session: AuthSession | null }>> {
-    try {
-      const result = await this.authRepository.login(payload);
-      return { data: result, error: null };
-    } catch (error: unknown) {
-      return { data: null, error: error instanceof Error ? error.message : "Invalid credentials" };
-    }
-  }
+  async register(data: RegisterRequestDTO): Promise<AuthenticationResult> {
+    const validated = AuthValidator.validateSchema(RegisterRequestSchema, data);
+    return authRepository.signUp(validated);
+  },
 
-  async register(
-    payload: RegisterInput
-  ): Promise<AuthResult<{ user: AuthUser | null; session: AuthSession | null }>> {
-    try {
-      const result = await this.authRepository.register(payload);
-      return { data: result, error: null };
-    } catch (error: unknown) {
-      return { data: null, error: error instanceof Error ? error.message : "Registration failed" };
-    }
-  }
+  async logout(): Promise<void> {
+    await authRepository.signOut();
+    authEventBus.dispatch(AuthEvent.LOGOUT);
+  },
 
-  async logout(): Promise<AuthResult<void>> {
-    try {
-      await this.authRepository.logout();
-      return { data: null, error: null };
-    } catch (error: unknown) {
-      return { data: null, error: error instanceof Error ? error.message : "Logout failed" };
-    }
-  }
+  async forgotPassword(data: ForgotPasswordRequestDTO): Promise<void> {
+    const validated = AuthValidator.validateSchema(ForgotPasswordRequestSchema, data);
+    return authRepository.forgotPassword(validated);
+  },
 
-  async forgotPassword(payload: ForgotPasswordInput, resetUrl: string): Promise<AuthResult<void>> {
-    try {
-      await this.authRepository.forgotPassword(payload, resetUrl);
-      return { data: null, error: null };
-    } catch (error: unknown) {
-      return {
-        data: null,
-        error: error instanceof Error ? error.message : "Failed to send reset email",
-      };
-    }
-  }
+  async resetPassword(data: ResetPasswordRequestDTO): Promise<void> {
+    const validated = AuthValidator.validateSchema(ResetPasswordRequestSchema, data);
+    await authRepository.resetPassword(validated);
+    authEventBus.dispatch(AuthEvent.PASSWORD_RESET);
+  },
 
-  async resetPassword(payload: ResetPasswordInput): Promise<AuthResult<void>> {
-    try {
-      await this.authRepository.resetPassword(payload);
-      return { data: null, error: null };
-    } catch (error: unknown) {
-      return {
-        data: null,
-        error: error instanceof Error ? error.message : "Failed to reset password",
-      };
-    }
-  }
-}
+  async verifyEmail(data: VerifyEmailRequestDTO): Promise<void> {
+    const validated = AuthValidator.validateSchema(VerifyEmailRequestSchema, data);
+    await authRepository.verifyEmail(validated);
+    authEventBus.dispatch(AuthEvent.EMAIL_VERIFIED);
+  },
+};

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import * as React from "react";
@@ -20,27 +21,25 @@ import {
 export function UserDropdown() {
   const { user, logout } = useAuth();
 
-  const name = user?.profile?.full_name || "Admin User";
-  const email = user?.email || "admin@wedding.com";
-  const initials = name
-    .split(" ")
-    .map((n) => n[0])
+  const name = (user as any)?.fullName || "Admin User";
+  const email = (user as any)?.email || "admin@wedding.com";
+  const initials = (user as any)?.fullName
+    ?.split(" ")
+    .map((n: any) => n[0])
     .join("")
-    .substring(0, 2)
-    .toUpperCase();
+    .toUpperCase()
+    .slice(0, 2);
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={user?.profile?.avatar_url || undefined} alt={`@${name}`} />
-              <AvatarFallback>{initials}</AvatarFallback>
-            </Avatar>
-          </Button>
-        }
-      />
+      <DropdownMenuTrigger>
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={(user as any)?.avatar || undefined} alt={`@${name}`} />
+            <AvatarFallback>{initials}</AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">

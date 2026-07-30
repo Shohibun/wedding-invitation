@@ -1,5 +1,5 @@
 import { AuthCard } from "@/components/auth/auth-card";
-import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
+import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
 import Link from "next/link";
 import { Metadata } from "next";
 

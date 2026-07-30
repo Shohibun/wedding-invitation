@@ -1,17 +1,11 @@
-export const AuthRedirectReason = {
-  EXPIRED: "expired",
-  LOGOUT: "logout",
-  REGISTERED: "registered",
-  VERIFIED: "verified",
-  PASSWORD_RESET: "password-reset",
-} as const;
+export const AUTH_PROVIDERS = ["email", "phone", "google", "github", "apple"] as const;
 
-export type AuthRedirectReasonType = (typeof AuthRedirectReason)[keyof typeof AuthRedirectReason];
+export const AUTH_ROLES = ["anonymous", "authenticated", "guest", "admin"] as const;
 
-export const AUTH_REASON_MESSAGES: Record<AuthRedirectReasonType, string> = {
-  [AuthRedirectReason.EXPIRED]: "Your session has expired. Please sign in again.",
-  [AuthRedirectReason.LOGOUT]: "You have been successfully logged out.",
-  [AuthRedirectReason.REGISTERED]: "Registration successful. Please sign in.",
-  [AuthRedirectReason.VERIFIED]: "Email verified successfully. You can now sign in.",
-  [AuthRedirectReason.PASSWORD_RESET]: "Your password has been reset successfully. Please sign in.",
+// Legacy Aliases for UI routes backward compatibility
+export type AuthRedirectReasonType = "unauthorized" | "session_expired" | "not_found";
+export const AUTH_REASON_MESSAGES: Record<string, string> = {
+  unauthorized: "You must be logged in.",
+  session_expired: "Session expired. Please log in again.",
+  not_found: "Resource not found.",
 };

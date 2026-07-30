@@ -1,37 +1,40 @@
-import { Session as SupabaseSession } from "@supabase/supabase-js";
-import { Role } from "./roles";
+import { z } from "zod";
+import {
+  AuthUserSchema,
+  SessionSchema,
+  CredentialSchema,
+  AuthenticationResultSchema,
+  LoginRequestSchema,
+  RegisterRequestSchema,
+  ForgotPasswordRequestSchema,
+  ResetPasswordRequestSchema,
+  VerifyEmailRequestSchema,
+} from "./schema";
 
-// We re-export or alias the types so that the application layer
-// is not tightly coupled to Supabase implementation details,
-// although under the hood it's the exact same interface for now.
-export interface Profile {
-  id: string;
-  full_name: string | null;
-  avatar_url: string | null;
-  role: Role;
-  preferences: Record<string, unknown>;
-  subscription: string;
-  tenant_id: string | null;
-  created_at: string;
-  updated_at: string;
+export type AuthUser = z.infer<typeof AuthUserSchema>;
+export type Session = z.infer<typeof SessionSchema>;
+export type Credential = z.infer<typeof CredentialSchema>;
+export type AuthenticationResult = z.infer<typeof AuthenticationResultSchema>;
+
+export type LoginRequestDTO = z.infer<typeof LoginRequestSchema>;
+export type RegisterRequestDTO = z.infer<typeof RegisterRequestSchema>;
+export type ForgotPasswordRequestDTO = z.infer<typeof ForgotPasswordRequestSchema>;
+export type ResetPasswordRequestDTO = z.infer<typeof ResetPasswordRequestSchema>;
+export type VerifyEmailRequestDTO = z.infer<typeof VerifyEmailRequestSchema>;
+
+export interface IAuthRepository {
+  signIn(data: LoginRequestDTO): Promise<AuthenticationResult>;
+  signUp(data: RegisterRequestDTO): Promise<AuthenticationResult>;
+  signOut(): Promise<void>;
+  refreshSession(): Promise<AuthenticationResult>;
+  forgotPassword(data: ForgotPasswordRequestDTO): Promise<void>;
+  resetPassword(data: ResetPasswordRequestDTO): Promise<void>;
+  verifyEmail(data: VerifyEmailRequestDTO): Promise<void>;
+  changePassword(newPassword: string): Promise<void>;
+  getCurrentUser(): Promise<AuthUser | null>;
+  getCurrentSession(): Promise<Session | null>;
 }
 
-export interface AuthUser {
-  id: string;
-  email?: string;
-  profile: Profile | null;
-}
-
-export type AuthSession = SupabaseSession;
-
-export interface AuthState {
-  user: AuthUser | null;
-  session: AuthSession | null;
-  isLoading: boolean;
-  error: Error | null;
-}
-
-export interface AuthResult<T = void> {
-  data: T | null;
-  error: string | null;
-}
+// Legacy Aliases for src/features/profile backward compatibility
+export type Profile = AuthUser;
+export type AuthResult<T = unknown> = { data: T | null; error: string | null };
