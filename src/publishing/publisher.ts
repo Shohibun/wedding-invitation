@@ -1,22 +1,31 @@
-import { VersionService } from "../features/versions/service";
 import { PublishContext, PublishError, PublishResult } from "./types";
+import { DraftService } from "../features/drafts/service";
 
 export class Publisher {
   /**
-   * Commits the strictly validated draft into the Version History Engine.
+   * Commits the strictly validated draft into the database as "published".
    */
   async commit(context: PublishContext): Promise<PublishResult> {
     try {
-      // The VersionService encapsulates Snapshot generation and Draft marking.
-      const version = await VersionService.publishVersion(
+      const currentDraft = await DraftService.getDraft(context.invitationId);
+      if (!currentDraft) {
+        throw new Error("No active draft found.");
+      }
+
+      const newVersionNumber = currentDraft.version + 1;
+
+      await DraftService.saveDraft(
         context.invitationId,
-        context.message,
-        context.publishedBy
+        {
+          data: currentDraft.data,
+          status: "published",
+        },
+        newVersionNumber
       );
 
       return {
         status: "success",
-        versionId: version.id,
+        versionId: `v${newVersionNumber}`,
       };
     } catch (error) {
       console.error("[Publisher] Commit failed:", error);
