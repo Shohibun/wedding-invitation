@@ -1,6 +1,7 @@
 export interface Invitation {
   id: string;
   user_id: string;
+  title: string;
   slug: string;
   theme: string;
   music_auto_play: boolean;

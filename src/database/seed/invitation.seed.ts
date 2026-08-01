@@ -12,7 +12,8 @@ export async function seedInvitation(supabase: SupabaseClient, userId: string) {
 
   const invitation = await service.create({
     user_id: userId,
-    slug,
+    title: "Romeo & Juliet Wedding",
+    slug: "romeo-juliet",
     theme: "darsana-premium",
     locale: "id",
     music_auto_play: true,

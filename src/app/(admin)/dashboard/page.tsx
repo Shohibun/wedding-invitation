@@ -1,9 +1,27 @@
 import { PageContainer } from "@/components/admin/page-container";
 import { PageHeader } from "@/components/dashboard/page-header";
-import { StatCard, DashboardCard } from "@/components/dashboard/cards";
+import { StatCard } from "@/components/dashboard/cards";
 import { UsersIcon, MailsIcon, CheckCircleIcon } from "lucide-react";
 
-export default function DashboardPage() {
+import { InvitationService } from "@/features/invitation";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+
+export const revalidate = 0;
+
+export default async function DashboardPage() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabase = createSupabaseClient(supabaseUrl, supabaseKey, {
+    auth: { persistSession: false },
+  });
+
+  const invitationService = new InvitationService(supabase);
+  const invitations = await invitationService.getAll();
+
+  const totalInvitations = invitations.length;
+  const publishedInvitations = invitations.filter((inv) => inv.status === "published").length;
+  const draftInvitations = invitations.filter((inv) => inv.status === "draft").length;
   return (
     <PageContainer>
       <PageHeader heading="Dashboard" text="Welcome to the Wedding Admin CMS." />
@@ -11,37 +29,22 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-3 mt-6">
         <StatCard
           title="Total Invitations"
-          value="12"
+          value={totalInvitations.toString()}
           icon={MailsIcon}
-          description="+2 from last month"
+          description="All invitations in the system"
         />
-        <StatCard title="Total RSVPs" value="143" icon={UsersIcon} description="+12 this week" />
         <StatCard
-          title="System Status"
-          value="Healthy"
+          title="Published"
+          value={publishedInvitations.toString()}
           icon={CheckCircleIcon}
-          description="All services running"
+          description="Live invitations"
         />
-      </div>
-
-      <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <DashboardCard
-          className="col-span-4"
-          title="Recent Activity"
-          description="Latest changes across your invitations."
-        >
-          <div className="h-[300px] flex items-center justify-center text-muted-foreground border rounded-md border-dashed">
-            Activity Chart Placeholder
-          </div>
-        </DashboardCard>
-
-        <DashboardCard className="col-span-3" title="Quick Links">
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Manage your invitations or update system settings.
-            </p>
-          </div>
-        </DashboardCard>
+        <StatCard
+          title="Drafts"
+          value={draftInvitations.toString()}
+          icon={UsersIcon}
+          description="Work in progress"
+        />
       </div>
     </PageContainer>
   );

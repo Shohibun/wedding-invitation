@@ -18,6 +18,7 @@ import { AuthService } from "@/features/auth/service";
 import { authRepository } from "@/features/auth/repository";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -85,6 +86,7 @@ export default async function RootLayout({
             </AuthProvider>
           </WeddingThemeProvider>
         </ThemeProvider>
+        <Toaster />
       </body>
     </html>
   );

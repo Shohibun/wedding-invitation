@@ -31,6 +31,7 @@ export function InvitationClientList({ initialData }: { initialData: InvitationW
     if (!search) return initialData;
     return initialData.filter(
       (inv) =>
+        inv.title.toLowerCase().includes(search.toLowerCase()) ||
         inv.slug.toLowerCase().includes(search.toLowerCase()) ||
         inv.theme.toLowerCase().includes(search.toLowerCase())
     );
@@ -96,6 +97,10 @@ export function InvitationClientList({ initialData }: { initialData: InvitationW
       },
     },
     {
+      header: "Title",
+      cell: (row: InvitationWithDetails) => <span className="font-medium">{row.title}</span>,
+    },
+    {
       header: "Slug",
       cell: (row: InvitationWithDetails) => (
         <Link href={`/invitations/${row.id}`} className="text-primary hover:underline">
@@ -120,7 +125,11 @@ export function InvitationClientList({ initialData }: { initialData: InvitationW
       },
     },
     {
-      header: "Updated At",
+      header: "Created",
+      cell: (row: InvitationWithDetails) => format(new Date(row.created_at), "MMM d, yyyy"),
+    },
+    {
+      header: "Updated",
       cell: (row: InvitationWithDetails) => format(new Date(row.updated_at), "MMM d, yyyy"),
     },
     {

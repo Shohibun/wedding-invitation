@@ -51,13 +51,16 @@ export async function deleteInvitation(id: string) {
 export async function saveInvitation(payload: InvitationInput, id?: string) {
   try {
     const service = await getService();
+    let resultId = id;
     if (id) {
-      await service.update(id, payload);
+      const result = await service.update(id, payload);
+      resultId = result.id;
     } else {
-      await service.create(payload);
+      const result = await service.create(payload);
+      resultId = result.id;
     }
     revalidatePath("/invitations");
-    return { success: true };
+    return { success: true, id: resultId };
   } catch (error: unknown) {
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }

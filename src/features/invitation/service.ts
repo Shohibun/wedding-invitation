@@ -50,6 +50,7 @@ export class InvitationService {
 
     const payload: InvitationInput = {
       user_id: original.user_id,
+      title: `${original.title} (Copy)`,
       slug: newSlug,
       theme: original.theme,
       music_auto_play: original.music_auto_play,
