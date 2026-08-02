@@ -55,9 +55,7 @@ export class InvitationService {
       theme: original.theme,
       music_auto_play: original.music_auto_play,
       locale: original.locale,
-      sections_order: original.sections_order,
       status: "draft", // new copies are always drafts
-      is_public: false,
     };
 
     return this.create(payload);

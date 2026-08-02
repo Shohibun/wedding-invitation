@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-export const guestSchema = z.object({
+export const rsvpSchema = z.object({
   invitation_id: z.string().uuid().optional(),
-  name: z.string().min(1).optional(),
-  phone_number: z.string().nullable().optional(),
-  slug: z.string().optional(),
+  guest_id: z.string().uuid().optional(),
   status: z.enum(["pending", "attending", "declined"]).optional(),
-  pax: z.number().int().min(1).optional(),
+  attending_pax: z.number().int().min(1).nullable().optional(),
+  dietary_requirements: z.string().nullable().optional(),
+  message: z.string().nullable().optional(),
 });
 
-export type GuestInput = z.infer<typeof guestSchema>;
+export type RsvpInsertDTO = z.infer<typeof rsvpSchema>;

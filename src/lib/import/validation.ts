@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { importGuestSchema } from "@/features/guest/schema";
-import { GuestImport, Guest } from "@/features/guest/types";
+import { GuestImport } from "@/features/guest/schema";
+import { Guest } from "@/features/guest/types";
 
 export interface ImportValidationResult {
   valid: GuestImport[];

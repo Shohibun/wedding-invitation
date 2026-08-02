@@ -17,15 +17,8 @@ export function downloadPdf(guests: Guest[], filename: string, title: string = "
     30
   );
 
-  const tableColumn = ["Name", "Phone", "Category", "Pax", "RSVP", "Status"];
-  const tableRows = guests.map((g) => [
-    g.name,
-    g.phone_number || "-",
-    g.category.toUpperCase(),
-    g.pax.toString(),
-    g.rsvp_status.toUpperCase(),
-    g.guest_status.toUpperCase(),
-  ]);
+  const tableColumn = ["Name", "Phone", "Max Pax"];
+  const tableRows = guests.map((g) => [g.name, g.phone_number || "-", g.max_pax.toString()]);
 
   autoTable(doc, {
     head: [tableColumn],

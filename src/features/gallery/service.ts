@@ -1,31 +1,36 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { GalleryImageRepository } from "./repository";
-import { galleryimageSchema, GalleryImageInput } from "./schema";
-import { GalleryImage } from "./types";
+import { GalleryRepository } from "./repository";
+import { gallerySchema, GalleryInsertDTO } from "./schema";
+import { Gallery } from "./types";
 
-export class GalleryImageService {
-  private repository: GalleryImageRepository;
+export class GalleryService {
+  private repository: GalleryRepository;
 
   constructor(supabase: SupabaseClient) {
-    this.repository = new GalleryImageRepository(supabase);
+    this.repository = new GalleryRepository(supabase);
   }
 
-  async getById(id: string): Promise<GalleryImage | null> {
+  async getById(id: string): Promise<Gallery | null> {
     return this.repository.getById(id);
   }
 
-  async getByInvitationId(invitationId: string): Promise<GalleryImage[]> {
+  async getByInvitationId(invitationId: string): Promise<Gallery[]> {
     return this.repository.getByInvitationId(invitationId);
   }
 
-  async create(payload: GalleryImageInput): Promise<GalleryImage> {
-    const validatedData = galleryimageSchema.parse(payload);
-    return this.repository.create(validatedData);
+  async create(payload: GalleryInsertDTO): Promise<Gallery> {
+    const validatedData = gallerySchema.parse(payload);
+    return this.repository.create(
+      validatedData as any /* eslint-disable-line @typescript-eslint/no-explicit-any */
+    );
   }
 
-  async update(id: string, payload: GalleryImageInput): Promise<GalleryImage> {
-    const validatedData = galleryimageSchema.partial().parse(payload);
-    return this.repository.update(id, validatedData);
+  async update(id: string, payload: GalleryInsertDTO): Promise<Gallery> {
+    const validatedData = gallerySchema.partial().parse(payload);
+    return this.repository.update(
+      id,
+      validatedData as any /* eslint-disable-line @typescript-eslint/no-explicit-any */
+    );
   }
 
   async delete(id: string): Promise<void> {

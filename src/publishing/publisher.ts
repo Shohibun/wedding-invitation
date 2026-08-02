@@ -12,20 +12,13 @@ export class Publisher {
         throw new Error("No active draft found.");
       }
 
-      const newVersionNumber = currentDraft.version + 1;
-
-      await DraftService.saveDraft(
-        context.invitationId,
-        {
-          data: currentDraft.data,
-          status: "published",
-        },
-        newVersionNumber
-      );
+      await DraftService.saveDraft(context.invitationId, {
+        payload: currentDraft.payload as Record<string, unknown>,
+      });
 
       return {
         status: "success",
-        versionId: `v${newVersionNumber}`,
+        versionId: `v_published`, // Dummy since versions are removed
       };
     } catch (error) {
       console.error("[Publisher] Commit failed:", error);

@@ -1,21 +1,12 @@
-export interface Invitation {
-  id: string;
-  user_id: string;
-  title: string;
-  slug: string;
-  theme: string;
-  music_auto_play: boolean;
-  locale: string;
-  sections_order: string[];
-  status: "draft" | "published" | "archived";
-  published_at: string | null;
-  is_public: boolean;
-  draft_data?: Record<string, unknown>;
-  created_at: string;
-  updated_at: string;
-}
+import { Database } from "@/types/database.types";
+
+export type Invitation = Database["public"]["Tables"]["invitations"]["Row"];
+export type InvitationInsert = Database["public"]["Tables"]["invitations"]["Insert"];
+export type InvitationUpdate = Database["public"]["Tables"]["invitations"]["Update"];
 
 export interface InvitationWithDetails extends Invitation {
+  couples?: { name: string; role: string }[];
+  gallery?: { url: string }[];
   persons?: { name: string; role: string }[];
   gallery_images?: { url: string }[];
 }

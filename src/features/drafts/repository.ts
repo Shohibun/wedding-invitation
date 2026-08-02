@@ -10,9 +10,9 @@ class DraftRepositoryImpl implements DraftRepositoryPort {
     const supabase = createClient();
 
     const { data, error } = await supabase
-      .from("invitations")
-      .select("id, draft_version, draft_status, draft_data, draft_updated_at, draft_updated_by")
-      .eq("id", invitationId)
+      .from("drafts")
+      .select("invitation_id, payload, created_at, updated_at")
+      .eq("invitation_id", invitationId)
       .single();
 
     if (error) {
@@ -30,21 +30,17 @@ class DraftRepositoryImpl implements DraftRepositoryPort {
 
   /**
    * Saves updates to the draft data for a specific invitation.
-   * Uses JSONB merging if necessary, but here we replace the draft_data object directly.
+   * Uses JSONB merging if necessary, but here we replace the payload object directly.
    */
   async saveDraft(invitationId: string, payload: UpdateDraftDTO): Promise<Draft> {
     const supabase = createClient();
 
     const dbPayload = DraftMapper.toPersistence(payload);
 
-    // We increment the version strictly on the database side or service side.
-    // Here we let the Service layer manage the version number inside the payload.
-
     const { data, error } = await supabase
-      .from("invitations")
-      .update(dbPayload)
-      .eq("id", invitationId)
-      .select("id, draft_version, draft_status, draft_data, draft_updated_at, draft_updated_by")
+      .from("drafts")
+      .upsert({ invitation_id: invitationId, payload: dbPayload })
+      .select("invitation_id, payload, created_at, updated_at")
       .single();
 
     if (error) {

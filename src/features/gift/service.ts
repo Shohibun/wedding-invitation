@@ -1,31 +1,36 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { GiftAccountRepository } from "./repository";
-import { giftaccountSchema, GiftAccountInput } from "./schema";
-import { GiftAccount } from "./types";
+import { GiftRepository } from "./repository";
+import { giftSchema, GiftInsertDTO } from "./schema";
+import { Gift } from "./types";
 
-export class GiftAccountService {
-  private repository: GiftAccountRepository;
+export class GiftService {
+  private repository: GiftRepository;
 
   constructor(supabase: SupabaseClient) {
-    this.repository = new GiftAccountRepository(supabase);
+    this.repository = new GiftRepository(supabase);
   }
 
-  async getById(id: string): Promise<GiftAccount | null> {
+  async getById(id: string): Promise<Gift | null> {
     return this.repository.getById(id);
   }
 
-  async getByInvitationId(invitationId: string): Promise<GiftAccount[]> {
+  async getByInvitationId(invitationId: string): Promise<Gift[]> {
     return this.repository.getByInvitationId(invitationId);
   }
 
-  async create(payload: GiftAccountInput): Promise<GiftAccount> {
-    const validatedData = giftaccountSchema.parse(payload);
-    return this.repository.create(validatedData);
+  async create(payload: GiftInsertDTO): Promise<Gift> {
+    const validatedData = giftSchema.parse(payload);
+    return this.repository.create(
+      validatedData as any /* eslint-disable-line @typescript-eslint/no-explicit-any */
+    );
   }
 
-  async update(id: string, payload: GiftAccountInput): Promise<GiftAccount> {
-    const validatedData = giftaccountSchema.partial().parse(payload);
-    return this.repository.update(id, validatedData);
+  async update(id: string, payload: GiftInsertDTO): Promise<Gift> {
+    const validatedData = giftSchema.partial().parse(payload);
+    return this.repository.update(
+      id,
+      validatedData as any /* eslint-disable-line @typescript-eslint/no-explicit-any */
+    );
   }
 
   async delete(id: string): Promise<void> {

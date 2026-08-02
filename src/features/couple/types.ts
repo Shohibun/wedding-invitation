@@ -1,13 +1,8 @@
-export interface Person {
-  id: string;
-  invitation_id: string;
-  role: "groom" | "bride";
-  name: string;
-  full_name: string;
-  father_name: string;
-  mother_name: string;
-  description: string | null;
-  instagram_username: string | null;
-  created_at: string;
-  updated_at: string;
-}
+import { Database } from "@/types/database.types";
+
+export type Couple = Database["public"]["Tables"]["couples"]["Row"];
+export type CoupleInsert = Database["public"]["Tables"]["couples"]["Insert"];
+export type CoupleUpdate = Database["public"]["Tables"]["couples"]["Update"];
+
+// Legacy mapping
+export type Person = Couple;

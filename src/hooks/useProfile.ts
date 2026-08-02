@@ -1,9 +1,9 @@
 import { useState, useCallback, useEffect } from "react";
-import { UserProfile, UpdateProfileDTO } from "../features/profile/types";
+import { Profile, ProfileUpdate } from "../features/profile/types";
 import { ProfileService } from "../features/profile/service";
 
 export const useProfile = (userId?: string) => {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,7 +32,7 @@ export const useProfile = (userId?: string) => {
   }, [loadProfile]);
 
   const updateProfile = useCallback(
-    async (data: UpdateProfileDTO) => {
+    async (data: ProfileUpdate) => {
       if (!userId) return;
       try {
         const updated = await ProfileService.updateProfile(userId, data);

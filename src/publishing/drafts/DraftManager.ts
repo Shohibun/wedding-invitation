@@ -3,7 +3,6 @@ import { Draft } from "../../features/drafts/types";
 
 export class DraftManager {
   private invitationId: string;
-  private currentVersion: number = 1;
   private lastSavedHash: string | null = null;
   private saveTimeout: NodeJS.Timeout | null = null;
 
@@ -22,8 +21,7 @@ export class DraftManager {
   async initialize(): Promise<Draft | null> {
     const draft = await DraftService.getDraft(this.invitationId);
     if (draft) {
-      this.currentVersion = draft.version;
-      this.lastSavedHash = this.hashState(draft.data);
+      this.lastSavedHash = this.hashState(draft.payload);
     }
     return draft;
   }
@@ -66,15 +64,10 @@ export class DraftManager {
       if (this.onSaveStart) this.onSaveStart();
 
       const payload = DraftService.serializeBuilderData(builderState);
-      const savedDraft = await DraftService.saveDraft(
-        this.invitationId,
-        payload,
-        this.currentVersion
-      );
+      const savedDraft = await DraftService.saveDraft(this.invitationId, payload);
 
       // Update local state after successful save
-      this.currentVersion = savedDraft.version;
-      this.lastSavedHash = this.hashState(savedDraft.data);
+      this.lastSavedHash = this.hashState(savedDraft.payload);
 
       if (this.onSaveSuccess) this.onSaveSuccess(savedDraft);
     } catch (error) {

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const giftaccountSchema = z.object({
+export const giftSchema = z.object({
   invitation_id: z.string().uuid().optional(),
   bank_name: z.string().optional(),
   account_number: z.string().optional(),
@@ -9,4 +9,4 @@ export const giftaccountSchema = z.object({
   qr_code_url: z.string().url().nullable().optional(),
 });
 
-export type GiftAccountInput = z.infer<typeof giftaccountSchema>;
+export type GiftInsertDTO = z.infer<typeof giftSchema>;

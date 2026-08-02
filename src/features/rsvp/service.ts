@@ -1,31 +1,36 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { GuestRepository } from "./repository";
-import { guestSchema, GuestInput } from "./schema";
-import { Guest } from "./types";
+import { RsvpRepository } from "./repository"; // Renamed in Phase 3A
+import { rsvpSchema, RsvpInsertDTO } from "./schema";
+import { Rsvp } from "./types";
 
-export class GuestService {
-  private repository: GuestRepository;
+export class RsvpService {
+  private repository: RsvpRepository;
 
   constructor(supabase: SupabaseClient) {
-    this.repository = new GuestRepository(supabase);
+    this.repository = new RsvpRepository(supabase);
   }
 
-  async getById(id: string): Promise<Guest | null> {
+  async getById(id: string): Promise<Rsvp | null> {
     return this.repository.getById(id);
   }
 
-  async getByInvitationId(invitationId: string): Promise<Guest[]> {
+  async getByInvitationId(invitationId: string): Promise<Rsvp[]> {
     return this.repository.getByInvitationId(invitationId);
   }
 
-  async create(payload: GuestInput): Promise<Guest> {
-    const validatedData = guestSchema.parse(payload);
-    return this.repository.create(validatedData);
+  async create(payload: RsvpInsertDTO): Promise<Rsvp> {
+    const validatedData = rsvpSchema.parse(payload);
+    return this.repository.create(
+      validatedData as any /* eslint-disable-line @typescript-eslint/no-explicit-any */
+    );
   }
 
-  async update(id: string, payload: GuestInput): Promise<Guest> {
-    const validatedData = guestSchema.partial().parse(payload);
-    return this.repository.update(id, validatedData);
+  async update(id: string, payload: RsvpInsertDTO): Promise<Rsvp> {
+    const validatedData = rsvpSchema.partial().parse(payload);
+    return this.repository.update(
+      id,
+      validatedData as any /* eslint-disable-line @typescript-eslint/no-explicit-any */
+    );
   }
 
   async delete(id: string): Promise<void> {

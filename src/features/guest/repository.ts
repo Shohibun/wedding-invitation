@@ -41,48 +41,6 @@ export class GuestRepository {
     return GuestMapper.toDomain(data);
   }
 
-  async getBySlugAndToken(slug: string, token: string): Promise<Guest | null> {
-    const { data, error } = await this.supabase
-      .from("guests")
-      .select("*")
-      .eq("slug", slug)
-      .eq("access_token", token)
-      .single();
-
-    if (error || !data) return null;
-    return GuestMapper.toDomain(data);
-  }
-
-  async regenerateToken(id: string): Promise<string> {
-    const newToken = crypto.randomUUID();
-    const { error } = await this.supabase
-      .from("guests")
-      .update({ access_token: newToken })
-      .eq("id", id);
-
-    if (error) throw new Error(error.message);
-    return newToken;
-  }
-
-  async trackVisit(id: string): Promise<void> {
-    // We use a raw SQL RPC if we want exact increment, but since we don't have one,
-    // we can just let the service handle it or use a simple update.
-    // For safety without RPC, we'll fetch first, then update.
-    const guest = await this.getById(id);
-    if (!guest) return;
-
-    const now = new Date().toISOString();
-    const updates: Record<string, unknown> = {
-      visit_count: guest.visit_count + 1,
-      last_visited_at: now,
-    };
-    if (!guest.first_visited_at) {
-      updates.first_visited_at = now;
-    }
-
-    await this.update(id, updates);
-  }
-
   async search(params: GuestSearch): Promise<{ data: Guest[]; count: number }> {
     let query = this.supabase
       .from("guests")
@@ -94,9 +52,7 @@ export class GuestRepository {
     }
 
     if (params.filter) {
-      if (params.filter.category) query = query.eq("category", params.filter.category);
-      if (params.filter.guest_status) query = query.eq("guest_status", params.filter.guest_status);
-      if (params.filter.rsvp_status) query = query.eq("rsvp_status", params.filter.rsvp_status);
+      // Obsolete filters removed
     }
 
     const sortBy = params.sortBy || "created_at";

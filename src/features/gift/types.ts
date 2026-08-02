@@ -1,11 +1,8 @@
-export interface GiftAccount {
-  id: string;
-  invitation_id: string;
-  bank_name: string;
-  account_number: string;
-  account_name: string;
-  is_ewallet: boolean;
-  qr_code_url: string | null;
-  created_at: string;
-  updated_at: string;
-}
+import { Database } from "@/types/database.types";
+
+export type Gift = Database["public"]["Tables"]["gifts"]["Row"];
+export type GiftInsert = Database["public"]["Tables"]["gifts"]["Insert"];
+export type GiftUpdate = Database["public"]["Tables"]["gifts"]["Update"];
+
+// Legacy mapping
+export type GiftAccount = Gift;

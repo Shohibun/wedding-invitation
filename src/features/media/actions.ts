@@ -5,19 +5,17 @@ import { MediaService } from "./service";
 import { MediaRepository } from "./repository";
 import { createClient } from "@/lib/supabase/server";
 import { StorageBucket } from "@/lib/storage";
-import { AssetMediaType } from "./types";
 
 /**
  * Uploads a file via Server Action and records it in the database.
  */
 export async function uploadMediaAction(formData: FormData) {
-  const user = await requireAuth();
+  await requireAuth();
 
   const file = formData.get("file") as File | null;
   const bucket = formData.get("bucket") as StorageBucket;
-  const mediaType = formData.get("mediaType") as AssetMediaType;
+  const mediaType = formData.get("mediaType") as "image" | "audio" | "video" | "qr";
   const invitationId = formData.get("invitationId") as string;
-  const path = formData.get("path") as string | undefined;
 
   if (!file || !bucket || !mediaType || !invitationId) {
     return { error: "Missing required fields for upload" };
@@ -30,10 +28,8 @@ export async function uploadMediaAction(formData: FormData) {
   const result = await service.uploadFile({
     file,
     bucket,
-    mediaType,
-    invitationId,
-    userId: user.id,
-    path,
+    media_type: mediaType,
+    invitation_id: invitationId,
   });
 
   if (result.error) return { error: result.error };
@@ -74,13 +70,12 @@ export async function updateMediaSortOrderAction(updates: { id: string; sort_ord
  * Replaces a single-asset type (e.g. 'cover', 'groom', 'bride') by deleting existing ones and uploading the new one.
  */
 export async function replaceSingleMediaAction(formData: FormData) {
-  const user = await requireAuth();
+  await requireAuth();
 
   const file = formData.get("file") as File | null;
   const bucket = formData.get("bucket") as StorageBucket;
-  const mediaType = formData.get("mediaType") as AssetMediaType;
+  const mediaType = formData.get("mediaType") as "image" | "audio" | "video" | "qr";
   const invitationId = formData.get("invitationId") as string;
-  const path = formData.get("path") as string | undefined;
 
   if (!file || !bucket || !mediaType || !invitationId) {
     return { error: "Missing required fields for upload" };
@@ -103,10 +98,8 @@ export async function replaceSingleMediaAction(formData: FormData) {
   const result = await service.uploadFile({
     file,
     bucket,
-    mediaType,
-    invitationId,
-    userId: user.id,
-    path,
+    media_type: mediaType,
+    invitation_id: invitationId,
   });
 
   if (result.error) return { error: result.error };

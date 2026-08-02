@@ -1,11 +1,8 @@
-export interface LoveStory {
-  id: string;
-  invitation_id: string;
-  date_text: string;
-  title: string;
-  description: string;
-  image_url: string | null;
-  display_order: number;
-  created_at: string;
-  updated_at: string;
-}
+import { Database } from "@/types/database.types";
+
+export type Story = Database["public"]["Tables"]["stories"]["Row"];
+export type StoryInsert = Database["public"]["Tables"]["stories"]["Insert"];
+export type StoryUpdate = Database["public"]["Tables"]["stories"]["Update"];
+
+// Legacy mapping
+export type LoveStory = Story;

@@ -5,10 +5,7 @@ export function generateCsvExport(guests: Guest[]): string {
   const data = guests.map((g) => ({
     Name: g.name,
     Phone: g.phone_number || "",
-    Category: g.category,
-    Pax: g.pax,
-    RSVP: g.rsvp_status,
-    Status: g.guest_status,
+    "Max Pax": g.max_pax,
     Link: `/invitation/${g.slug}?guest=${g.id}`,
     "Created At": new Date(g.created_at).toLocaleString(),
   }));

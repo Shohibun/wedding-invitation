@@ -1,11 +1,8 @@
-export interface Guest {
-  id: string;
-  invitation_id: string;
-  name: string;
-  phone_number: string | null;
-  slug: string;
-  status: "pending" | "attending" | "declined";
-  pax: number;
-  created_at: string;
-  updated_at: string;
-}
+import { Database } from "@/types/database.types";
+
+export type Rsvp = Database["public"]["Tables"]["rsvps"]["Row"];
+export type RsvpInsert = Database["public"]["Tables"]["rsvps"]["Insert"];
+export type RsvpUpdate = Database["public"]["Tables"]["rsvps"]["Update"];
+
+// The old Guest interface was used in rsvp/types.ts incorrectly.
+export type Guest = Database["public"]["Tables"]["guests"]["Row"];

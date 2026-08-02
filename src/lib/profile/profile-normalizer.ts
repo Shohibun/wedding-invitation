@@ -1,31 +1,16 @@
-import {
-  UserProfile,
-  UserPreferences,
-  UserDevice,
-  UserSession,
-} from "../../features/profile/types";
-import {
-  UserProfileSchema,
-  UserPreferencesSchema,
-  UserDeviceSchema,
-  UserSessionSchema,
-} from "../../features/profile/schema";
-import { ProfileValidator } from "./profile-validator";
+import { Profile } from "../../features/profile/types";
+import { profileSchema } from "../../features/profile/schema";
+import { ZodError } from "zod";
 
-export const ProfileNormalizer = {
-  normalizeProfile(raw: unknown): UserProfile {
-    return ProfileValidator.validateSchema(UserProfileSchema, raw);
-  },
-
-  normalizePreferences(raw: unknown): UserPreferences {
-    return ProfileValidator.validateSchema(UserPreferencesSchema, raw);
-  },
-
-  normalizeDevices(rawArray: unknown[]): UserDevice[] {
-    return rawArray.map((raw) => ProfileValidator.validateSchema(UserDeviceSchema, raw));
-  },
-
-  normalizeSessions(rawArray: unknown[]): UserSession[] {
-    return rawArray.map((raw) => ProfileValidator.validateSchema(UserSessionSchema, raw));
-  },
-};
+export class ProfileNormalizer {
+  static normalizeProfile(data: unknown): Profile {
+    try {
+      return profileSchema.parse(data) as Profile;
+    } catch (e) {
+      if (e instanceof ZodError) {
+        throw new Error(`Profile validation failed: ${e.message}`);
+      }
+      throw e;
+    }
+  }
+}

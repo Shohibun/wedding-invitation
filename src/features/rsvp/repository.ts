@@ -1,50 +1,54 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { Guest } from "./types";
+import { Rsvp } from "./types";
 
-export class GuestRepository {
+export class RsvpRepository {
   constructor(private readonly supabase: SupabaseClient) {}
 
-  async getById(id: string): Promise<Guest | null> {
-    const { data, error } = await this.supabase.from("guests").select("*").eq("id", id).single();
+  async getById(guestId: string): Promise<Rsvp | null> {
+    const { data, error } = await this.supabase
+      .from("rsvps")
+      .select("*")
+      .eq("guest_id", guestId)
+      .single();
 
     if (error) {
       if (error.code === "PGRST116") return null;
       throw new Error(`DB Error: ${error.message}`);
     }
-    return data as Guest;
+    return data as Rsvp;
   }
 
-  async getByInvitationId(invitationId: string): Promise<Guest[]> {
+  async getByInvitationId(invitationId: string): Promise<Rsvp[]> {
     const { data, error } = await this.supabase
-      .from("guests")
-      .select("*")
-      .eq("invitation_id", invitationId);
+      .from("rsvps")
+      .select("*, guests!inner(*)")
+      .eq("guests.invitation_id", invitationId);
 
     if (error) throw new Error(`DB Error: ${error.message}`);
-    return data as Guest[];
+    return data as Rsvp[];
   }
 
-  async create(payload: Partial<Guest>): Promise<Guest> {
-    const { data, error } = await this.supabase.from("guests").insert(payload).select().single();
+  async create(payload: Partial<Rsvp>): Promise<Rsvp> {
+    const { data, error } = await this.supabase.from("rsvps").insert(payload).select().single();
 
     if (error) throw new Error(`DB Error: ${error.message}`);
-    return data as Guest;
+    return data as Rsvp;
   }
 
-  async update(id: string, payload: Partial<Guest>): Promise<Guest> {
+  async update(guestId: string, payload: Partial<Rsvp>): Promise<Rsvp> {
     const { data, error } = await this.supabase
-      .from("guests")
+      .from("rsvps")
       .update(payload)
-      .eq("id", id)
+      .eq("guest_id", guestId)
       .select()
       .single();
 
     if (error) throw new Error(`DB Error: ${error.message}`);
-    return data as Guest;
+    return data as Rsvp;
   }
 
-  async delete(id: string): Promise<void> {
-    const { error } = await this.supabase.from("guests").delete().eq("id", id);
+  async delete(guestId: string): Promise<void> {
+    const { error } = await this.supabase.from("rsvps").delete().eq("guest_id", guestId);
 
     if (error) throw new Error(`DB Error: ${error.message}`);
   }

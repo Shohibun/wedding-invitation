@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const weddingeventSchema = z.object({
+export const eventSchema = z.object({
   invitation_id: z.string().uuid().optional(),
   title: z.string().min(1).optional(),
   date: z.string().optional(),
@@ -13,4 +13,4 @@ export const weddingeventSchema = z.object({
   is_main_event: z.boolean().optional(),
 });
 
-export type WeddingEventInput = z.infer<typeof weddingeventSchema>;
+export type EventInsertDTO = z.infer<typeof eventSchema>;

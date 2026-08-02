@@ -1,12 +1,11 @@
 import { z } from "zod";
 
-export const lovestorySchema = z.object({
+export const storySchema = z.object({
   invitation_id: z.string().uuid().optional(),
-  date_text: z.string().optional(),
+  date_text: z.string().nullable().optional(),
   title: z.string().optional(),
-  description: z.string().optional(),
-  image_url: z.string().url().nullable().optional(),
+  description: z.string().nullable().optional(),
   display_order: z.number().int().optional(),
 });
 
-export type LoveStoryInput = z.infer<typeof lovestorySchema>;
+export type StoryInsertDTO = z.infer<typeof storySchema>;

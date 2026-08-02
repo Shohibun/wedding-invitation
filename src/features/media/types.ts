@@ -1,53 +1,35 @@
-import { StorageBucket } from "@/lib/storage";
+import { Database } from "@/types/database.types";
 
-export type AssetMediaType =
-  "cover" | "hero" | "couple" | "gallery" | "story" | "gift_qr" | "music";
-
+export type MediaAsset = Database["public"]["Tables"]["media_assets"]["Row"];
+export type MediaAssetInsert = Database["public"]["Tables"]["media_assets"]["Insert"];
+export type MediaAssetUpdate = Database["public"]["Tables"]["media_assets"]["Update"];
+export type AssetMediaType = "image" | "audio" | "video" | "qr";
 export interface MediaUploadPayload {
+  invitation_id: string;
+  bucket: string;
   file: File;
-  bucket: StorageBucket;
-  mediaType: AssetMediaType;
-  invitationId: string;
-  userId: string;
-  path?: string; // Optional custom path (excluding filename)
+  media_type: AssetMediaType;
 }
 
 export interface MediaDeletePayload {
-  bucket: StorageBucket;
-  paths: string[];
+  invitation_id: string;
+  id: string;
 }
 
 export interface MediaMovePayload {
-  bucket: StorageBucket;
+  bucket: string;
   fromPath: string;
   toPath: string;
 }
 
 export interface MediaRenamePayload {
-  bucket: StorageBucket;
+  bucket: string;
   currentPath: string;
   newName: string;
 }
 
 export interface MediaResult<T = void> {
-  data: T | null;
-  error: string | null;
-}
-
-export interface MediaAsset {
-  id: string;
-  invitation_id: string;
-  bucket: string;
-  storage_path: string;
-  media_type: AssetMediaType;
-  mime_type: string;
-  file_size: number;
-  width: number | null;
-  height: number | null;
-  duration: number | null;
-  alt_text: string | null;
-  sort_order: number;
-  uploaded_by: string;
-  created_at: string;
-  updated_at: string;
+  success?: boolean;
+  data?: T | null;
+  error?: string | null;
 }

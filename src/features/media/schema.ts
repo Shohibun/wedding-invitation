@@ -10,15 +10,7 @@ import {
 // We create a helper to validate File objects in Zod if running on client/server actions
 const isBrowser = typeof window !== "undefined";
 
-const ASSET_MEDIA_TYPES = [
-  "cover",
-  "hero",
-  "couple",
-  "gallery",
-  "story",
-  "gift_qr",
-  "music",
-] as const;
+const ASSET_MEDIA_TYPES = ["image", "audio", "video", "qr"] as const;
 
 export const uploadMediaSchema = z.object({
   bucket: z.nativeEnum(StorageBuckets),

@@ -1,31 +1,36 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { LoveStoryRepository } from "./repository";
-import { lovestorySchema, LoveStoryInput } from "./schema";
-import { LoveStory } from "./types";
+import { StoryRepository } from "./repository";
+import { storySchema, StoryInsertDTO } from "./schema";
+import { Story } from "./types";
 
-export class LoveStoryService {
-  private repository: LoveStoryRepository;
+export class StoryService {
+  private repository: StoryRepository;
 
   constructor(supabase: SupabaseClient) {
-    this.repository = new LoveStoryRepository(supabase);
+    this.repository = new StoryRepository(supabase);
   }
 
-  async getById(id: string): Promise<LoveStory | null> {
+  async getById(id: string): Promise<Story | null> {
     return this.repository.getById(id);
   }
 
-  async getByInvitationId(invitationId: string): Promise<LoveStory[]> {
+  async getByInvitationId(invitationId: string): Promise<Story[]> {
     return this.repository.getByInvitationId(invitationId);
   }
 
-  async create(payload: LoveStoryInput): Promise<LoveStory> {
-    const validatedData = lovestorySchema.parse(payload);
-    return this.repository.create(validatedData);
+  async create(payload: StoryInsertDTO): Promise<Story> {
+    const validatedData = storySchema.parse(payload);
+    return this.repository.create(
+      validatedData as any /* eslint-disable-line @typescript-eslint/no-explicit-any */
+    );
   }
 
-  async update(id: string, payload: LoveStoryInput): Promise<LoveStory> {
-    const validatedData = lovestorySchema.partial().parse(payload);
-    return this.repository.update(id, validatedData);
+  async update(id: string, payload: StoryInsertDTO): Promise<Story> {
+    const validatedData = storySchema.partial().parse(payload);
+    return this.repository.update(
+      id,
+      validatedData as any /* eslint-disable-line @typescript-eslint/no-explicit-any */
+    );
   }
 
   async delete(id: string): Promise<void> {

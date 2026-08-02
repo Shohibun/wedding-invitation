@@ -47,20 +47,15 @@ export class MediaService {
       // 4. Upload to Storage
       const result = await this.repository.upload(bucket, finalPath, file, file.type);
 
-      // 5. Insert Database Record
       const asset = await this.repository.insertAsset({
-        invitation_id: payload.invitationId,
+        invitation_id: payload.invitation_id,
         bucket: bucket,
         storage_path: result.path,
-        media_type: payload.mediaType,
+        public_url: "", // The repo or frontend can resolve this
+        file_name: file.name,
+        media_type: payload.media_type,
         mime_type: file.type,
         file_size: file.size,
-        width: null, // Note: For future sprint, we can parse Image width/height via a library before saving
-        height: null,
-        duration: null,
-        alt_text: null,
-        sort_order: 0,
-        uploaded_by: payload.userId,
       });
 
       return { data: asset, error: null };
@@ -117,7 +112,9 @@ export class MediaService {
     }
   }
 
-  async updateSortOrders(updates: { id: string; sort_order: number }[]): Promise<MediaResult> {
+  async updateSortOrders(
+    updates: { id: string; sort_order: number }[]
+  ): Promise<MediaResult<void>> {
     try {
       await this.repository.updateSortOrders(updates);
       return { data: undefined, error: null };
@@ -131,7 +128,7 @@ export class MediaService {
 
   // --- Legacy Pure Storage Operations ---
 
-  async deleteFiles(payload: MediaDeletePayload): Promise<MediaResult> {
+  async deleteFiles(payload: MediaDeletePayload): Promise<MediaResult<void>> {
     try {
       const parsed = deleteMediaSchema.safeParse(payload);
       if (!parsed.success) {
@@ -148,7 +145,7 @@ export class MediaService {
     }
   }
 
-  async moveFile(payload: MediaMovePayload): Promise<MediaResult> {
+  async moveFile(payload: MediaMovePayload): Promise<MediaResult<void>> {
     try {
       const parsed = moveMediaSchema.safeParse(payload);
       if (!parsed.success) {
@@ -162,7 +159,7 @@ export class MediaService {
     }
   }
 
-  async renameFile(payload: MediaRenamePayload): Promise<MediaResult> {
+  async renameFile(payload: MediaRenamePayload): Promise<MediaResult<void>> {
     // Renaming is effectively a move within the same directory
     const parts = payload.currentPath.split("/");
     parts.pop(); // remove old filename

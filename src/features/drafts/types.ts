@@ -1,11 +1,12 @@
-import { z } from "zod";
-import { DraftSchema, UpdateDraftSchema } from "./schema";
+import { Database } from "@/types/database.types";
 
-export type Draft = z.infer<typeof DraftSchema>;
-export type UpdateDraftDTO = z.infer<typeof UpdateDraftSchema>;
+export type Draft = Database["public"]["Tables"]["drafts"]["Row"];
+export type DraftInsert = Database["public"]["Tables"]["drafts"]["Insert"];
+export type DraftUpdate = Database["public"]["Tables"]["drafts"]["Update"];
 
 export interface DraftRepositoryPort {
   loadDraft(invitationId: string): Promise<Draft | null>;
-  saveDraft(invitationId: string, payload: UpdateDraftDTO): Promise<Draft>;
-  // Additional methods if required
+  saveDraft(invitationId: string, payload: unknown): Promise<Draft>;
 }
+
+export type UpdateDraftDTO = Record<string, unknown>;

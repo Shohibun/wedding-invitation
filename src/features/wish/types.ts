@@ -1,9 +1,5 @@
-export interface Wish {
-  id: string;
-  invitation_id: string;
-  guest_name: string;
-  message: string;
-  status: "pending" | "approved" | "spam";
-  created_at: string;
-  updated_at: string;
-}
+import { Database } from "@/types/database.types";
+
+export type Wish = Database["public"]["Tables"]["wishes"]["Row"];
+export type WishInsert = Database["public"]["Tables"]["wishes"]["Insert"];
+export type WishUpdate = Database["public"]["Tables"]["wishes"]["Update"];

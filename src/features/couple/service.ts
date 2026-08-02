@@ -1,31 +1,31 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { PersonRepository } from "./repository";
-import { personSchema, PersonInput } from "./schema";
-import { Person } from "./types";
+import { CoupleRepository } from "./repository";
+import { coupleSchema, CoupleInsertDTO } from "./schema";
+import { Couple, CoupleInsert, CoupleUpdate } from "./types";
 
-export class PersonService {
-  private repository: PersonRepository;
+export class CoupleService {
+  private repository: CoupleRepository;
 
   constructor(supabase: SupabaseClient) {
-    this.repository = new PersonRepository(supabase);
+    this.repository = new CoupleRepository(supabase);
   }
 
-  async getById(id: string): Promise<Person | null> {
+  async getById(id: string): Promise<Couple | null> {
     return this.repository.getById(id);
   }
 
-  async getByInvitationId(invitationId: string): Promise<Person[]> {
+  async getByInvitationId(invitationId: string): Promise<Couple[]> {
     return this.repository.getByInvitationId(invitationId);
   }
 
-  async create(payload: PersonInput): Promise<Person> {
-    const validatedData = personSchema.parse(payload);
-    return this.repository.create(validatedData);
+  async create(payload: CoupleInsertDTO): Promise<Couple> {
+    const validatedData = coupleSchema.parse(payload);
+    return this.repository.create(validatedData as unknown as CoupleInsert);
   }
 
-  async update(id: string, payload: PersonInput): Promise<Person> {
-    const validatedData = personSchema.partial().parse(payload);
-    return this.repository.update(id, validatedData);
+  async update(id: string, payload: CoupleInsertDTO): Promise<Couple> {
+    const validatedData = coupleSchema.partial().parse(payload);
+    return this.repository.update(id, validatedData as unknown as CoupleUpdate);
   }
 
   async delete(id: string): Promise<void> {

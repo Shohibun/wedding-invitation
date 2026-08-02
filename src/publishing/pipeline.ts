@@ -20,7 +20,7 @@ export class PublishPipeline {
     }
 
     // 2. Strict Defensive Parsing
-    const parsedData = DraftSnapshotSchema.safeParse(draft.data);
+    const parsedData = DraftSnapshotSchema.safeParse(draft.payload);
     if (!parsedData.success) {
       return {
         status: "validation_failed",

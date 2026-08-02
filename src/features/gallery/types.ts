@@ -1,10 +1,8 @@
-export interface GalleryImage {
-  id: string;
-  invitation_id: string;
-  url: string;
-  thumbnail_url: string | null;
-  caption: string | null;
-  display_order: number;
-  created_at: string;
-  updated_at: string;
-}
+import { Database } from "@/types/database.types";
+
+export type Gallery = Database["public"]["Tables"]["gallery"]["Row"];
+export type GalleryInsert = Database["public"]["Tables"]["gallery"]["Insert"];
+export type GalleryUpdate = Database["public"]["Tables"]["gallery"]["Update"];
+
+// Legacy mapping
+export type GalleryImage = Gallery;
