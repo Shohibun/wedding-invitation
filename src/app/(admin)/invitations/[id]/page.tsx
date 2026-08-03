@@ -1,9 +1,10 @@
 import { PageContainer } from "@/components/admin/page-container";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { InvitationForm } from "../components/invitation-form";
-import { InvitationService } from "@/features/invitation";
+import { InvitationService } from "@/features/invitation/service";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Eye, Users } from "lucide-react";
 
@@ -28,13 +29,16 @@ export default async function EditInvitationPage({ params }: { params: { id: str
     <PageContainer>
       <PageHeader heading="Edit Invitation" text={`Editing invitation: /${invitation.slug}`}>
         <div className="flex items-center gap-2">
-          <Button disabled variant="outline" title="Coming Soon in next Sprint">
+          <Button variant="outline" render={<Link href={`/invitations/${params.id}/guests`} />}>
             <Users className="mr-2 h-4 w-4" />
-            Manage Guests (Soon)
+            Manage Guests
           </Button>
-          <Button disabled variant="default" title="Coming Soon in next Sprint">
+          <Button
+            variant="default"
+            render={<Link href={`/invitation/${invitation.slug}`} target="_blank" />}
+          >
             <Eye className="mr-2 h-4 w-4" />
-            Preview Live (Soon)
+            Preview Live
           </Button>
         </div>
       </PageHeader>

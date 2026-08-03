@@ -1,13 +1,10 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const StorageBuckets = {
-  GALLERY: "gallery",
-  COVERS: "covers",
-  COUPLES: "couples",
-  STORIES: "stories",
-  MUSIC: "music",
-  GIFTS: "gifts",
-  THEMES: "themes",
+  GALLERY: "invitation-gallery",
+  MEDIA: "invitation-media",
+  GIFTS: "invitation-gifts",
+  AVATARS: "admin-avatars",
 } as const;
 
 export type StorageBucket = (typeof StorageBuckets)[keyof typeof StorageBuckets];

@@ -13,7 +13,7 @@ export const updateGuestSchema = createGuestSchema.partial().omit({ invitation_i
 export const importGuestSchema = z.object({
   name: z.string().min(2).max(150),
   phone_number: z.string().max(30).optional(),
-  slug: z.string().max(255),
+  slug: z.string().max(255).optional(),
   max_pax: z.number().int().min(1).optional(),
 });
 

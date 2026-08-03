@@ -1,12 +1,14 @@
-import React, { useRef } from "react";
-import { UserProfile } from "../../features/profile/types";
-import { ProfileService } from "../../features/profile/service";
-import { Button } from "@/components/ui/button";
-import { AvatarUtils } from "../../lib/profile/avatar-utils";
+"use client";
 
-export const AvatarUploader: React.FC<{ profile: UserProfile; onUploadSuccess: () => void }> = ({
+import React, { useRef } from "react";
+import { Profile } from "@/features/profile/types";
+import { Button } from "@/components/ui/button";
+import { AvatarUtils } from "@/lib/profile/avatar-utils";
+
+export const AvatarUploader: React.FC<{ profile: Profile; userId: string }> = ({
   profile,
-  onUploadSuccess,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  userId,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -14,22 +16,17 @@ export const AvatarUploader: React.FC<{ profile: UserProfile; onUploadSuccess: (
     const file = e.target.files?.[0];
     if (!file) return;
 
-    try {
-      await ProfileService.uploadAvatar(profile.userId, file);
-      onUploadSuccess();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to upload avatar");
-    }
+    alert("Avatar upload is mocked for MVP");
   };
 
   return (
-    <div className="flex items-center gap-4">
-      <div className="h-20 w-20 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-2xl overflow-hidden border">
-        {profile.avatar ? (
+    <div className="flex items-center gap-4 border-b border-border pb-6">
+      <div className="h-20 w-20 rounded-full bg-surface Hover flex items-center justify-center text-textMuted font-bold text-2xl overflow-hidden border border-border">
+        {profile.avatar_url ? (
           /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={profile.avatar} alt="Avatar" className="h-full w-full object-cover" />
+          <img src={profile.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
         ) : (
-          AvatarUtils.generateInitials(profile.fullName)
+          AvatarUtils.generateInitials(profile.full_name)
         )}
       </div>
       <div className="space-y-2">
@@ -40,7 +37,12 @@ export const AvatarUploader: React.FC<{ profile: UserProfile; onUploadSuccess: (
           ref={fileInputRef}
           onChange={handleFileChange}
         />
-        <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => fileInputRef.current?.click()}
+          type="button"
+        >
           Change Avatar
         </Button>
         <p className="text-xs text-muted-foreground">JPG, PNG or WEBP. Max 5MB.</p>

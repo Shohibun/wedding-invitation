@@ -32,13 +32,12 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
     resolver: zodResolver(invitationSchema),
     defaultValues: initialData
       ? {
-          title: initialData.title,
+          title: initialData.title || "",
           slug: initialData.slug,
           theme: initialData.theme,
           music_auto_play: initialData.music_auto_play,
           locale: initialData.locale,
           status: initialData.status,
-          is_public: initialData.is_public,
         }
       : {
           title: "",
@@ -47,7 +46,6 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
           music_auto_play: true,
           locale: "id-ID",
           status: "draft",
-          is_public: false,
         },
   });
 
@@ -85,7 +83,6 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
           </Button>
         </div>
       </div>
-
       <SectionCard
         title="Basic Information"
         description="Set the primary URL and theme for this invitation."
@@ -132,7 +129,6 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
           />
         </div>
       </SectionCard>
-
       <SectionCard
         title="Publishing Status"
         description="Control the visibility and lifecycle of this invitation."
@@ -160,23 +156,8 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
               </Field>
             )}
           />
-
-          <Controller
-            control={form.control}
-            name="is_public"
-            render={({ field }) => (
-              <Field className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm mt-2">
-                <div className="space-y-0.5">
-                  <FieldLabel className="text-base">Public Access</FieldLabel>
-                  <FieldDescription>Allow anyone to view this invitation.</FieldDescription>
-                </div>
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
-              </Field>
-            )}
-          />
         </div>
-      </SectionCard>
-
+      </SectionCard>{" "}
       <SectionCard title="Settings" description="General configuration settings.">
         <div className="grid gap-4 sm:grid-cols-2">
           <Controller

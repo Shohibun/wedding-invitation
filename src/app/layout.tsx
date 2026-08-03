@@ -11,14 +11,9 @@ import {
   Lato,
 } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/providers/theme-provider";
-import { WeddingThemeProvider } from "@/providers/wedding-theme-provider";
-import { AuthProvider } from "@/providers/auth-provider";
-import { AuthService } from "@/features/auth/service";
-import { authRepository } from "@/features/auth/repository";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { Toaster } from "@/components/ui/sonner";
+import { Providers } from "@/providers";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -42,8 +37,34 @@ const greatVibes = Great_Vibes({
 });
 
 export const metadata: Metadata = {
-  title: "Digital Wedding Invitation SaaS",
-  description: "Create your beautiful wedding invitation",
+  title: "Darsana - Digital Wedding Invitation SaaS",
+  description: "Create your beautiful, elegant, and modern digital wedding invitation in minutes.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  openGraph: {
+    title: "Darsana - Digital Wedding Invitation",
+    description: "Create your beautiful wedding invitation",
+    url: "/",
+    siteName: "Darsana",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Darsana Digital Wedding Invitation",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Darsana - Digital Wedding Invitation",
+    description: "Create your beautiful wedding invitation",
+    images: ["/og-image.jpg"],
+  },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default async function RootLayout({
@@ -64,7 +85,7 @@ export default async function RootLayout({
     }
   );
 
-  const session = null;
+  const session = null; // Unused for now, removed from Providers if needed.
   const user = null;
 
   return (
@@ -74,19 +95,9 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${lato.variable} ${inter.variable} ${cinzel.variable} ${montserrat.variable} ${greatVibes.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-body" suppressHydrationWarning>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <WeddingThemeProvider>
-            <AuthProvider initialSession={session} initialUser={user}>
-              {children}
-            </AuthProvider>
-          </WeddingThemeProvider>
-        </ThemeProvider>
-        <Toaster />
+        <Providers session={session} user={user}>
+          {children}
+        </Providers>
       </body>
     </html>
   );

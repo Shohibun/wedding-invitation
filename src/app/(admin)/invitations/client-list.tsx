@@ -31,7 +31,7 @@ export function InvitationClientList({ initialData }: { initialData: InvitationW
     if (!search) return initialData;
     return initialData.filter(
       (inv) =>
-        inv.title.toLowerCase().includes(search.toLowerCase()) ||
+        (inv.title || "").toLowerCase().includes(search.toLowerCase()) ||
         inv.slug.toLowerCase().includes(search.toLowerCase()) ||
         inv.theme.toLowerCase().includes(search.toLowerCase())
     );
@@ -76,7 +76,7 @@ export function InvitationClientList({ initialData }: { initialData: InvitationW
     {
       header: "Cover",
       cell: (row: InvitationWithDetails) => {
-        const coverUrl = row.gallery_images?.[0]?.url;
+        const coverUrl = (row as any).gallery?.[0]?.url; // eslint-disable-line @typescript-eslint/no-explicit-any
         return coverUrl ? (
           <div className="relative w-12 h-16 rounded-md overflow-hidden border">
             <Image src={coverUrl} alt="Cover" fill className="object-cover" sizes="48px" />
@@ -91,8 +91,8 @@ export function InvitationClientList({ initialData }: { initialData: InvitationW
     {
       header: "Bride & Groom",
       cell: (row: InvitationWithDetails) => {
-        const groom = row.persons?.find((p) => p.role === "groom")?.name || "Groom";
-        const bride = row.persons?.find((p) => p.role === "bride")?.name || "Bride";
+        const groom = (row as any).couples?.[0]?.groom?.nickname || "Groom"; // eslint-disable-line @typescript-eslint/no-explicit-any
+        const bride = (row as any).couples?.[0]?.bride?.nickname || "Bride"; // eslint-disable-line @typescript-eslint/no-explicit-any
         return <span className="font-medium">{`${groom} & ${bride}`}</span>;
       },
     },

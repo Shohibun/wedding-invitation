@@ -9,7 +9,6 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { GuestCategory, RsvpStatus, AttendanceStatus } from "@/features/guest/types";
 
 export const revalidate = 0;
 
@@ -43,29 +42,17 @@ export default async function GuestsPage({
   const limit = 10;
 
   const query = resolvedSearchParams.query as string | undefined;
-  const category = resolvedSearchParams.category as GuestCategory | undefined;
-  const rsvp_status = resolvedSearchParams.rsvp_status as RsvpStatus | undefined;
-  const attendance_status = resolvedSearchParams.attendance_status as AttendanceStatus | undefined;
   const sortBy =
     (resolvedSearchParams.sortBy as "name" | "created_at" | "updated_at") || "created_at";
 
-  const [{ data: guests, count }, statistics, activities] = await Promise.all([
-    guestService.searchGuests({
-      invitation_id: resolvedParams.id,
-      query,
-      filter: {
-        category,
-        rsvp_status,
-        attendance_status,
-      },
-      page,
-      limit,
-      sortBy,
-      sortOrder: sortBy === "name" ? "asc" : "desc", // Name ascending, dates descending
-    }),
-    guestService.getStatistics(resolvedParams.id),
-    guestService.getRecentActivity(resolvedParams.id),
-  ]);
+  const { data: guests, count } = await guestService.searchGuests({
+    invitation_id: resolvedParams.id,
+    query,
+    page,
+    limit,
+    sortBy,
+    sortOrder: sortBy === "name" ? "asc" : "desc",
+  });
 
   return (
     <PageContainer>
@@ -86,8 +73,6 @@ export default async function GuestsPage({
           totalCount={count}
           currentPage={page}
           pageSize={limit}
-          statistics={statistics}
-          activities={activities}
         />
       </div>
     </PageContainer>

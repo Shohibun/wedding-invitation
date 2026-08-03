@@ -1,47 +1,68 @@
+"use client";
+
 import React, { useState } from "react";
-import { UserProfile, UpdateProfileDTO } from "../../features/profile/types";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { updateProfileSchema } from "@/features/profile/schema";
+import { Profile, ProfileUpdate } from "@/features/profile/types";
+import { updateProfile } from "@/features/profile/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { AvatarUploader } from "./AvatarUploader";
 
 export const ProfileForm: React.FC<{
-  profile: UserProfile;
-  onSave: (data: UpdateProfileDTO) => void;
-}> = ({ profile, onSave }) => {
-  const [formData, setFormData] = useState<UpdateProfileDTO>({
-    fullName: profile.fullName,
-    username: profile.username,
-    phone: profile.phone || "",
-    bio: profile.bio || "",
+  profile: Profile;
+  userId: string;
+}> = ({ profile, userId }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ProfileUpdate>({
+    resolver: zodResolver(updateProfileSchema),
+    defaultValues: {
+      full_name: profile.full_name,
+      avatar_url: profile.avatar_url,
+    },
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const onSubmit = async (data: ProfileUpdate) => {
+    setIsLoading(true);
+    const res = await updateProfile(userId, data);
+    if (res.success) {
+      toast.success("Profile updated successfully!");
+    } else {
+      toast.error(res.error || "Failed to update profile");
+    }
+    setIsLoading(false);
   };
 
   return (
-    <div className="space-y-4 p-6 bg-white border rounded-lg shadow-sm">
-      <h3 className="text-lg font-medium">Personal Information</h3>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="fullName">Full Name</Label>
-          <Input id="fullName" name="fullName" value={formData.fullName} onChange={handleChange} />
+    <div className="space-y-8 p-6 bg-surface border border-border rounded-xl shadow-sm">
+      <h3 className="text-xl font-heading text-primary">Personal Information</h3>
+
+      <AvatarUploader profile={profile} userId={userId} />
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-2 max-w-md">
+          <Label htmlFor="full_name">Full Name</Label>
+          <Input
+            id="full_name"
+            {...register("full_name")}
+            className={errors.full_name ? "border-destructive" : ""}
+          />
+          {errors.full_name && (
+            <p className="text-sm text-destructive">{errors.full_name.message}</p>
+          )}
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="username">Username</Label>
-          <Input id="username" name="username" value={formData.username} onChange={handleChange} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="phone">Phone Number</Label>
-          <Input id="phone" name="phone" value={formData.phone || ""} onChange={handleChange} />
-        </div>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="bio">Bio</Label>
-        <Textarea id="bio" name="bio" value={formData.bio || ""} onChange={handleChange} rows={3} />
-      </div>
-      <Button onClick={() => onSave(formData)}>Save Changes</Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? "Saving..." : "Save Changes"}
+        </Button>
+      </form>
     </div>
   );
 };

@@ -23,13 +23,16 @@ export class MediaService {
 
       const { bucket, file, path: customPath } = parsed.data;
 
-      // 2. Business Logic: Bucket Validation
-      if (bucket === "music" && !file.type.startsWith("audio/")) {
-        return { data: null, error: "The music bucket only accepts audio files" };
+      // 2. Business Logic: Validation
+      if (payload.media_type === "audio" && !file.type.startsWith("audio/")) {
+        return { data: null, error: "Audio files must be of type audio/*" };
       }
 
-      if (bucket !== "music" && !file.type.startsWith("image/")) {
-        return { data: null, error: `The ${bucket} bucket only accepts image files` };
+      if (
+        (payload.media_type === "image" || payload.media_type === "qr") &&
+        !file.type.startsWith("image/")
+      ) {
+        return { data: null, error: "Image/QR files must be of type image/*" };
       }
 
       // 3. Path Generation

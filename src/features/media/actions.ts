@@ -5,6 +5,9 @@ import { MediaService } from "./service";
 import { MediaRepository } from "./repository";
 import { createClient } from "@/lib/supabase/server";
 import { StorageBucket } from "@/lib/storage";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { logger } from "@/lib/logger";
+import { headers } from "next/headers";
 
 /**
  * Uploads a file via Server Action and records it in the database.
@@ -19,6 +22,15 @@ export async function uploadMediaAction(formData: FormData) {
 
   if (!file || !bucket || !mediaType || !invitationId) {
     return { error: "Missing required fields for upload" };
+  }
+
+  // Rate Limit: Max 30 uploads per minute (to support gallery drops)
+  const requestHeaders = await headers();
+  const ip = getClientIp(requestHeaders);
+  const rl = rateLimit(ip, "upload", { limit: 30, windowMs: 60 * 1000 });
+  if (!rl.success) {
+    logger.warn("Rate limit exceeded for media upload", { ip });
+    return { error: "Too many uploads. Please try again later." };
   }
 
   const supabase = await createClient();
@@ -108,4 +120,22 @@ export async function replaceSingleMediaAction(formData: FormData) {
   const url = repo.getPublicUrl(bucket, result.data!.storage_path);
 
   return { data: { ...result.data, url } };
+}
+
+export async function getAssetsAction(invitationId: string, mediaType?: string) {
+  await requireAuth();
+  const supabase = await createClient();
+  const repo = new MediaRepository(supabase);
+  const service = new MediaService(repo);
+
+  const result = await service.getAssets(invitationId, mediaType);
+  if (result.error) return { error: result.error };
+
+  // Generate URLs for all assets
+  const assetsWithUrls = result.data!.map((asset) => ({
+    ...asset,
+    url: repo.getPublicUrl(asset.bucket as StorageBucket, asset.storage_path),
+  }));
+
+  return { data: assetsWithUrls };
 }

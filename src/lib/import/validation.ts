@@ -44,8 +44,7 @@ export function validateGuestImport(
     const parsed = importGuestSchema.safeParse({
       name: row.name,
       phone_number: row.phone || row.phone_number,
-      category: row.category,
-      pax: row.pax ? parseInt(row.pax, 10) : undefined,
+      max_pax: row.pax ? parseInt(row.pax, 10) : undefined,
     });
 
     if (!parsed.success) {

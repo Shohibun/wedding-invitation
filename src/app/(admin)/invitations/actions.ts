@@ -1,22 +1,19 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
-import { InvitationService } from "@/features/invitation";
+import { requireAuth } from "@/features/auth/server-guards";
+import { createClient } from "@/lib/supabase/server";
+import { InvitationService } from "@/features/invitation/service";
 import { InvitationInput } from "@/features/invitation/schema";
 
 async function getService() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  const supabase = createSupabaseClient(supabaseUrl, supabaseKey, {
-    auth: { persistSession: false },
-  });
+  const supabase = await createClient();
   return new InvitationService(supabase);
 }
 
 export async function bulkDeleteInvitations(ids: string[]) {
   try {
+    await requireAuth();
     const service = await getService();
     await service.bulkDelete(ids);
     revalidatePath("/invitations");
@@ -28,6 +25,7 @@ export async function bulkDeleteInvitations(ids: string[]) {
 
 export async function duplicateInvitation(id: string) {
   try {
+    await requireAuth();
     const service = await getService();
     await service.duplicate(id);
     revalidatePath("/invitations");
@@ -39,6 +37,7 @@ export async function duplicateInvitation(id: string) {
 
 export async function deleteInvitation(id: string) {
   try {
+    await requireAuth();
     const service = await getService();
     await service.delete(id);
     revalidatePath("/invitations");
@@ -50,6 +49,7 @@ export async function deleteInvitation(id: string) {
 
 export async function saveInvitation(payload: InvitationInput, id?: string) {
   try {
+    await requireAuth();
     const service = await getService();
     let resultId = id;
     if (id) {

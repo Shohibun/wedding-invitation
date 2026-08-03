@@ -41,6 +41,20 @@ export class GuestRepository {
     return GuestMapper.toDomain(data);
   }
 
+  async getByGlobalSlug(slug: string): Promise<Guest | null> {
+    const { data, error } = await this.supabase
+      .from("guests")
+      .select("*")
+      .eq("slug", slug)
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") return null;
+      throw new Error(`DB Error: ${error.message}`);
+    }
+    return GuestMapper.toDomain(data);
+  }
+
   async search(params: GuestSearch): Promise<{ data: Guest[]; count: number }> {
     let query = this.supabase
       .from("guests")

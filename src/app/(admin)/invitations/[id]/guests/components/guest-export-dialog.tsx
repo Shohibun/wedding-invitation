@@ -35,7 +35,7 @@ export function GuestExportDialog({
   selectedGuests,
 }: GuestExportDialogProps) {
   const [format, setFormat] = React.useState<"csv" | "excel" | "pdf">("excel");
-  const [scope, setScope] = React.useState<"all" | "selected" | "attending">("all");
+  const [scope, setScope] = React.useState<"all" | "selected">("all");
   const [isExporting, setIsExporting] = React.useState(false);
 
   const handleExport = async () => {
@@ -58,10 +58,6 @@ export function GuestExportDialog({
         }
 
         guestsToExport = res.data;
-
-        if (scope === "attending") {
-          guestsToExport = guestsToExport.filter((g) => g.rsvp_status === "accepted");
-        }
       }
 
       const filename = `guests_${invitationSlug}_${new Date().toISOString().split("T")[0]}`;
@@ -95,13 +91,12 @@ export function GuestExportDialog({
             <FieldLabel>Export Scope</FieldLabel>
             <NativeSelect
               value={scope}
-              onChange={(e) => setScope(e.target.value as "all" | "selected" | "attending")}
+              onChange={(e) => setScope(e.target.value as "all" | "selected")}
             >
               <option value="all">All Guests</option>
               {selectedGuests.length > 0 && (
                 <option value="selected">Selected Guests ({selectedGuests.length})</option>
               )}
-              <option value="attending">Attending Only</option>
             </NativeSelect>
           </Field>
 

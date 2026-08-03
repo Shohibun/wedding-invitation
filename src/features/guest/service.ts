@@ -26,6 +26,10 @@ export class GuestService {
     return guest;
   }
 
+  async getGuestByGlobalSlug(slug: string): Promise<GuestType | null> {
+    return this.repository.getByGlobalSlug(slug);
+  }
+
   async searchGuests(params: GuestSearch): Promise<{ data: GuestType[]; count: number }> {
     return this.repository.search(params);
   }

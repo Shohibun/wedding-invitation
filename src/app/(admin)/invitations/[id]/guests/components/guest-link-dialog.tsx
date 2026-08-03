@@ -10,10 +10,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Guest } from "@/features/guest/types";
-import { regenerateGuestTokenAction } from "@/features/guest/actions";
-import { buildFullGuestLink, buildShortGuestLink } from "@/lib/link/guest-link";
+import { buildGuestLink } from "@/lib/link/guest-link";
 import { generateQrDataUrl, downloadQrAsPng, downloadQrAsSvg } from "@/lib/utils/qrcode";
-import { Copy, Download, RefreshCw, Loader2, Link as LinkIcon, QrCode } from "lucide-react";
+import { Copy, Download, QrCode } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,13 +29,14 @@ interface GuestLinkDialogProps {
 export function GuestLinkDialog({
   open,
   onOpenChange,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   invitationId,
   invitationSlug,
   guest,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onRegenerateSuccess,
 }: GuestLinkDialogProps) {
   const [qrUrl, setQrUrl] = React.useState<string>("");
-  const [isRegenerating, setIsRegenerating] = React.useState(false);
   const [domain, setDomain] = React.useState("");
 
   React.useEffect(() => {
@@ -45,18 +45,15 @@ export function GuestLinkDialog({
     }
   }, []);
 
-  const shortLink = guest ? buildShortGuestLink(domain, guest.slug, guest.access_token) : "";
-  const fullLink = guest
-    ? buildFullGuestLink(domain, invitationSlug, guest.id) + `&token=${guest.access_token}`
-    : "";
+  const link = guest ? buildGuestLink(domain, invitationSlug, guest.id) : "";
 
   React.useEffect(() => {
     if (open && guest) {
-      generateQrDataUrl(shortLink)
+      generateQrDataUrl(link)
         .then((url) => setQrUrl(url))
         .catch(() => toast.error("Failed to render QR"));
     }
-  }, [open, guest, shortLink]);
+  }, [open, guest, link]);
 
   const copyToClipboard = (text: string, type: string) => {
     navigator.clipboard.writeText(text);
@@ -65,34 +62,12 @@ export function GuestLinkDialog({
 
   const handleDownloadPng = async () => {
     if (!guest) return;
-    await downloadQrAsPng(shortLink, `qr-${guest.slug}.png`);
+    await downloadQrAsPng(link, `qr-${guest.slug}.png`);
   };
 
   const handleDownloadSvg = async () => {
     if (!guest) return;
-    await downloadQrAsSvg(shortLink, `qr-${guest.slug}.svg`);
-  };
-
-  const handleRegenerate = async () => {
-    if (!guest) return;
-    const confirmMsg =
-      "Are you sure? This will invalidate any previously shared links and QR codes for this guest.";
-    if (!confirm(confirmMsg)) return;
-
-    setIsRegenerating(true);
-    try {
-      const res = await regenerateGuestTokenAction(guest.id, invitationId);
-      if (res.success) {
-        toast.success("Guest link regenerated successfully.");
-        onRegenerateSuccess(); // Will trigger refresh to update the guest data
-      } else {
-        toast.error(res.error || "Failed to regenerate token.");
-      }
-    } catch {
-      toast.error("An error occurred while regenerating token.");
-    } finally {
-      setIsRegenerating(false);
-    }
+    await downloadQrAsSvg(link, `qr-${guest.slug}.svg`);
   };
 
   if (!guest) return null;
@@ -129,51 +104,22 @@ export function GuestLinkDialog({
 
           <div className="w-full space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">
-                Short Link (Recommended)
-              </Label>
+              <Label className="text-xs font-medium text-muted-foreground">Guest Link</Label>
               <div className="flex gap-2">
-                <Input readOnly value={shortLink} className="text-xs bg-muted/30" />
+                <Input readOnly value={link} className="text-xs bg-muted/30" />
                 <Button
                   variant="secondary"
                   size="icon"
-                  onClick={() => copyToClipboard(shortLink, "Short Link")}
+                  onClick={() => copyToClipboard(link, "Guest Link")}
                 >
                   <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground">Direct Full Link</Label>
-              <div className="flex gap-2">
-                <Input readOnly value={fullLink} className="text-xs bg-muted/30" />
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  onClick={() => copyToClipboard(fullLink, "Full Link")}
-                >
-                  <LinkIcon className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           </div>
         </div>
 
-        <DialogFooter className="flex items-center justify-between sm:justify-between border-t pt-4">
-          <Button
-            variant="ghost"
-            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-            onClick={handleRegenerate}
-            disabled={isRegenerating}
-          >
-            {isRegenerating ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="mr-2 h-4 w-4" />
-            )}
-            Regenerate Link
-          </Button>
+        <DialogFooter className="flex items-center justify-end sm:justify-end border-t pt-4">
           <Button onClick={() => onOpenChange(false)}>Close</Button>
         </DialogFooter>
       </DialogContent>

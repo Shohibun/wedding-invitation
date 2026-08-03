@@ -21,7 +21,7 @@ export class InvitationRepository {
   async getAll(): Promise<InvitationWithDetails[]> {
     const { data, error } = await this.supabase
       .from("invitations")
-      .select("*, couples(name, role), gallery(url)")
+      .select("*, couples(groom, bride), gallery(url)")
       .order("created_at", { ascending: false });
 
     if (error) throw new Error(`DB Error: ${error.message}`);

@@ -7,7 +7,10 @@ import { GuestService } from "./service";
 import { GuestSearch } from "./types";
 import { GuestImport, GuestInsertDTO, GuestUpdateDTO } from "./schema";
 
+import { requireAuth } from "@/features/auth/server-guards";
+
 async function getService() {
+  await requireAuth();
   const supabase = await createClient();
   const repository = new GuestRepository(supabase);
   return new GuestService(repository);
@@ -78,6 +81,26 @@ export async function bulkDeleteGuestsAction(ids: string[], invitationId: string
     const service = await getService();
     await service.bulkDeleteGuests(ids, invitationId);
     return { success: true };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+export async function importGuestsAction(invitationId: string, rawObjects: unknown[]) {
+  try {
+    const service = await getService();
+    const result = await service.importGuests(invitationId, rawObjects);
+    return { success: true, data: result };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+
+export async function getAllGuestsAction(invitationId: string) {
+  try {
+    const service = await getService();
+    const result = await service.searchGuests({ invitation_id: invitationId, limit: 10000 });
+    return { success: true, data: result.data };
   } catch (error: unknown) {
     return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
