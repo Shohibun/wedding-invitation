@@ -5,27 +5,32 @@ export class RsvpRepository {
   constructor(private readonly supabase: SupabaseClient) {}
 
   async getById(guestId: string): Promise<Rsvp | null> {
-    const { data, error } = await this.supabase
-      .from("rsvps")
-      .select("*")
-      .eq("guest_id", guestId)
-      .single();
+    try {
+      const { data, error } = await this.supabase
+        .from("rsvps")
+        .select("*")
+        .eq("guest_id", guestId)
+        .single();
 
-    if (error) {
-      if (error.code === "PGRST116") return null;
-      throw new Error(`DB Error: ${error.message}`);
+      if (error) return null;
+      return data as Rsvp;
+    } catch (_err) {
+      return null;
     }
-    return data as Rsvp;
   }
 
   async getByInvitationId(invitationId: string): Promise<Rsvp[]> {
-    const { data, error } = await this.supabase
-      .from("rsvps")
-      .select("*, guests!inner(*)")
-      .eq("guests.invitation_id", invitationId);
+    try {
+      const { data, error } = await this.supabase
+        .from("rsvps")
+        .select("*, guests!inner(*)")
+        .eq("guests.invitation_id", invitationId);
 
-    if (error) throw new Error(`DB Error: ${error.message}`);
-    return data as Rsvp[];
+      if (error) return [];
+      return (data || []) as Rsvp[];
+    } catch (_err) {
+      return [];
+    }
   }
 
   async create(payload: Partial<Rsvp>): Promise<Rsvp> {

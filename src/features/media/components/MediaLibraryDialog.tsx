@@ -85,7 +85,7 @@ export function MediaLibraryDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto min-h-[300px] p-1">
+        <div className="flex-1 overflow-y-auto min-h-75 p-1">
           {isLoading ? (
             <div className="w-full h-full flex items-center justify-center">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -108,7 +108,7 @@ export function MediaLibraryDialog({
                     {asset.media_type === "image" || asset.media_type === "qr" ? (
                       <Image src={asset.url} alt={asset.file_name} fill className="object-cover" />
                     ) : (
-                      <div className="w-full h-full bg-surfaceMuted flex items-center justify-center text-xs p-2 text-center break-words">
+                      <div className="w-full h-full bg-surfaceMuted flex items-center justify-center text-xs p-2 text-center wrap-break-word">
                         {asset.file_name}
                       </div>
                     )}

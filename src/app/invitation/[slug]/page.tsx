@@ -203,7 +203,7 @@ export default async function InvitationPage(props: InvitationPageProps) {
       <GallerySection images={mappedData.gallery} />
       <GiftSection gifts={mappedData.gifts} />
       <RsvpSection invitationId={invitation.id} />
-      <WishSection wishes={mappedData.wishes} />
+      <WishSection wishes={mappedData.wishes} invitationId={invitation.id} />
       <FooterSection title={invitation.title || "Wedding Invitation"} />
     </main>
   );

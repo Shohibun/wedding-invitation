@@ -23,7 +23,7 @@ export function DashboardCard({
   footer?: React.ReactNode;
 }) {
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card className={cn("overflow-hidden border border-border/80 shadow-sm", className)}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
@@ -40,22 +40,40 @@ export function StatCard({
   description,
   icon: Icon,
   className,
+  iconClassName = "bg-primary/10 text-primary",
 }: {
   title: React.ReactNode;
   value: React.ReactNode;
   description?: React.ReactNode;
   icon?: React.ElementType;
   className?: string;
+  iconClassName?: string;
 }) {
   return (
-    <Card className={cn("", className)}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+    <Card
+      className={cn(
+        "transition-all duration-200 hover:shadow-md border border-border/80",
+        className
+      )}
+    >
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+        <CardTitle className="text-sm font-semibold text-muted-foreground">{title}</CardTitle>
+        {Icon && (
+          <div
+            className={cn(
+              "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
+              iconClassName
+            )}
+          >
+            <Icon className="h-4 w-4" />
+          </div>
+        )}
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        <div className="text-3xl font-extrabold tracking-tight text-foreground">{value}</div>
+        {description && (
+          <p className="text-xs text-muted-foreground mt-1 font-light">{description}</p>
+        )}
       </CardContent>
     </Card>
   );

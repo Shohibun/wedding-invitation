@@ -21,32 +21,49 @@ import {
 export function UserDropdown() {
   const { user, logout } = useAuth();
 
-  const name = (user as any)?.fullName || "Admin User";
-  const email = (user as any)?.email || "admin@wedding.com";
-  const initials = (user as any)?.fullName
-    ?.split(" ")
-    .map((n: any) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+  const name =
+    (user as any)?.user_metadata?.full_name ||
+    (user as any)?.fullName ||
+    user?.email?.split("@")[0] ||
+    "Admin";
+  const email = user?.email || "admin@wedding.com";
+  const initials = name
+    ? name
+        .split(" ")
+        .map((n: string) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "AD";
+
+  const avatarUrl = (user as any)?.avatar || (user as any)?.user_metadata?.avatar_url || undefined;
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={(user as any)?.avatar || undefined} alt={`@${name}`} />
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="ghost"
+            className="relative h-9 w-9 rounded-full p-0 border border-border/80 shadow-xs hover:opacity-90 focus:outline-none"
+          >
+            <Avatar className="h-9 w-9">
+              <AvatarImage src={avatarUrl} alt={`@${name}`} />
+              <AvatarFallback className="bg-linear-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs">
+                {initials || "AD"}
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        }
+      />
       <DropdownMenuContent className="w-56" align="end">
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{name}</p>
-            <p className="text-xs leading-none text-muted-foreground">{email}</p>
-          </div>
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-semibold leading-none text-foreground">{name}</p>
+              <p className="text-xs leading-none text-muted-foreground">{email}</p>
+            </div>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem render={<Link href="/settings/profile" />}>
@@ -60,7 +77,7 @@ export function UserDropdown() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          className="text-destructive focus:bg-destructive/10"
+          className="text-destructive focus:bg-destructive/10 cursor-pointer"
           onClick={() => logout()}
         >
           <LogOut className="mr-2 h-4 w-4" />

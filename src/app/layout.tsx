@@ -37,7 +37,7 @@ const greatVibes = Great_Vibes({
 });
 
 export const metadata: Metadata = {
-  title: "Darsana - Digital Wedding Invitation SaaS",
+  title: "Darsana - Digital Wedding Invitation CMS",
   description: "Create your beautiful, elegant, and modern digital wedding invitation in minutes.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   openGraph: {

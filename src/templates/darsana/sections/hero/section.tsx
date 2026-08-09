@@ -44,7 +44,7 @@ export function HeroSection({ className }: HeroSectionProps) {
 
           <motion.div variants={itemVariants} className="my-8 relative">
             {/* Minimalist divider/ornament */}
-            <div className="w-px h-16 bg-gradient-to-b from-transparent via-primary/50 to-transparent mx-auto mb-6" />
+            <div className="w-px h-16 bg-linear-to-b from-transparent via-primary/50 to-transparent mx-auto mb-6" />
 
             <Heading
               level={2}
@@ -62,7 +62,7 @@ export function HeroSection({ className }: HeroSectionProps) {
               {couple?.bride?.fullName || "Bride Name"}
             </Heading>
 
-            <div className="w-px h-16 bg-gradient-to-b from-transparent via-primary/50 to-transparent mx-auto mt-6" />
+            <div className="w-px h-16 bg-linear-to-b from-transparent via-primary/50 to-transparent mx-auto mt-6" />
           </motion.div>
 
           <motion.div variants={itemVariants}>

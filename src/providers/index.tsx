@@ -7,19 +7,18 @@ import { DialogProvider } from "./dialog-provider";
 import { AuthProvider } from "./auth-provider";
 import { WeddingThemeProvider } from "./wedding-theme-provider";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function Providers({
   children,
   session,
   user,
 }: {
   children: React.ReactNode;
-  session?: any;
-  user?: any;
+  session?: unknown;
+  user?: unknown;
 }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      <AuthProvider initialSession={session} initialUser={user}>
+      <AuthProvider initialSession={session as never} initialUser={user as never}>
         <WeddingThemeProvider>
           <DialogProvider>{children}</DialogProvider>
         </WeddingThemeProvider>

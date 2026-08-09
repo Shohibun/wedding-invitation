@@ -5,23 +5,28 @@ export class WishRepository {
   constructor(private readonly supabase: SupabaseClient) {}
 
   async getById(id: string): Promise<Wish | null> {
-    const { data, error } = await this.supabase.from("wishes").select("*").eq("id", id).single();
+    try {
+      const { data, error } = await this.supabase.from("wishes").select("*").eq("id", id).single();
 
-    if (error) {
-      if (error.code === "PGRST116") return null;
-      throw new Error(`DB Error: ${error.message}`);
+      if (error) return null;
+      return data as Wish;
+    } catch (_err) {
+      return null;
     }
-    return data as Wish;
   }
 
   async getByInvitationId(invitationId: string): Promise<Wish[]> {
-    const { data, error } = await this.supabase
-      .from("wishes")
-      .select("*")
-      .eq("invitation_id", invitationId);
+    try {
+      const { data, error } = await this.supabase
+        .from("wishes")
+        .select("*")
+        .eq("invitation_id", invitationId);
 
-    if (error) throw new Error(`DB Error: ${error.message}`);
-    return data as Wish[];
+      if (error) return [];
+      return (data || []) as Wish[];
+    } catch (_err) {
+      return [];
+    }
   }
 
   async create(payload: Partial<Wish>): Promise<Wish> {

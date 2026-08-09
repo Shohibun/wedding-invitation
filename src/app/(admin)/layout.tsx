@@ -3,7 +3,7 @@ import { AdminLayoutWrapper } from "@/components/admin/admin-layout-wrapper";
 
 export const metadata = {
   title: "Admin Dashboard",
-  description: "Wedding SaaS Admin CMS",
+  description: "Single Admin Wedding CMS",
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

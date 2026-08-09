@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Save, ArrowLeft } from "lucide-react";
+import { Save, ArrowLeft, Loader2, Sparkles, Globe, Shield } from "lucide-react";
 import { toast } from "sonner";
 
 import { InvitationInput, invitationSchema } from "@/features/invitation/schema";
@@ -24,9 +24,23 @@ import { Switch } from "@/components/ui/switch";
 import { SectionCard } from "@/components/dashboard/section-card";
 import { Field, FieldLabel, FieldDescription, FieldError } from "@/components/ui/field";
 
+const slugify = (text: string): string => {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/&/g, "and") // Replace & with and
+    .replace(/[^\w\-]+/g, "") // Remove all non-word chars
+    .replace(/\-\-+/g, "-") // Replace multiple - with single -
+    .replace(/^-+/, "") // Trim - from start of text
+    .replace(/-+$/, ""); // Trim - from end of text
+};
+
 export function InvitationForm({ initialData }: { initialData?: Invitation }) {
   const router = useRouter();
   const [isSaving, setIsSaving] = React.useState(false);
+  const [isSlugCustomized, setIsSlugCustomized] = React.useState(!!initialData?.slug);
 
   const form = useForm<InvitationInput>({
     resolver: zodResolver(invitationSchema),
@@ -56,51 +70,107 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
 
     if (result.success) {
       toast.success("Invitation saved successfully.");
-      // Reset form state to current values to clear dirty state
       form.reset(values);
-      if (!initialData?.id && result.id) {
-        router.push(`/invitations/${result.id}`);
+      if (!initialData?.id) {
+        if (result.id && result.id !== "undefined") {
+          router.push(`/invitations/${result.id}`);
+        } else {
+          router.push("/invitations");
+        }
       }
     } else {
       toast.error("Failed to save invitation: " + result.error);
     }
   };
 
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    form.setValue("title", newTitle, { shouldValidate: true, shouldDirty: true });
+
+    if (!isSlugCustomized) {
+      const generatedSlug = slugify(newTitle);
+      form.setValue("slug", generatedSlug, { shouldValidate: true, shouldDirty: true });
+    }
+  };
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawVal = e.target.value;
+    setIsSlugCustomized(true);
+    form.setValue("slug", rawVal, { shouldValidate: true, shouldDirty: true });
+  };
+
   const isDirty = form.formState.isDirty;
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-      <div className="flex items-center justify-between">
-        <Button type="button" variant="outline" onClick={() => router.push("/invitations")}>
-          <ArrowLeft className="w-4 h-4 mr-2" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card border border-border/80 rounded-2xl p-4 shadow-sm">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.push("/invitations")}
+          className="w-full sm:w-auto"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2 text-muted-foreground" />
           Back to List
         </Button>
-        <div className="flex items-center gap-4">
-          {isDirty && <span className="text-sm text-muted-foreground">Unsaved changes</span>}
-          <Button type="submit" disabled={isSaving || !isDirty}>
-            <Save className="w-4 h-4 mr-2" />
-            {isSaving ? "Saving..." : "Save Draft"}
+
+        <div className="flex items-center gap-4 justify-end">
+          {isDirty && (
+            <span className="text-xs text-amber-500 font-medium bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+              Unsaved changes
+            </span>
+          )}
+          <Button
+            type="submit"
+            disabled={isSaving || !isDirty}
+            className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 shadow-md transition-all"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                Save Changes
+              </>
+            )}
           </Button>
         </div>
       </div>
+
       <SectionCard
         title="Basic Information"
-        description="Set the primary URL and theme for this invitation."
+        description="Set the primary URL and theme template for this invitation."
+        className="border border-border/80 shadow-sm"
       >
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-5 sm:grid-cols-2">
           <Field className="sm:col-span-2">
-            <FieldLabel>Title</FieldLabel>
-            <Input placeholder="Romeo & Juliet Wedding" {...form.register("title")} />
-            <FieldDescription>Internal title for this invitation.</FieldDescription>
+            <FieldLabel className="text-foreground font-semibold">Title</FieldLabel>
+            <Input
+              placeholder="Romeo & Juliet Wedding"
+              {...form.register("title")}
+              onChange={handleTitleChange}
+              className="bg-background border-input focus:border-primary"
+            />
+            <FieldDescription>Internal title for managing this invitation.</FieldDescription>
             {form.formState.errors.title && (
               <FieldError>{form.formState.errors.title.message}</FieldError>
             )}
           </Field>
 
           <Field>
-            <FieldLabel>Slug (URL)</FieldLabel>
-            <Input placeholder="romeo-juliet" {...form.register("slug")} />
-            <FieldDescription>The unique URL path for the invitation.</FieldDescription>
+            <FieldLabel className="text-foreground font-semibold">Slug (URL Path)</FieldLabel>
+            <Input
+              placeholder="romeo-and-juliet-wedding"
+              {...form.register("slug")}
+              onChange={handleSlugChange}
+              className="bg-background border-input focus:border-primary font-mono text-sm"
+            />
+            <FieldDescription>
+              Unique URL path (e.g. /invitation/romeo-and-juliet-wedding).
+            </FieldDescription>
             {form.formState.errors.slug && (
               <FieldError>{form.formState.errors.slug.message}</FieldError>
             )}
@@ -111,14 +181,19 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
             name="theme"
             render={({ field }) => (
               <Field>
-                <FieldLabel>Theme Template</FieldLabel>
+                <FieldLabel className="text-foreground font-semibold flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-blue-500" /> Theme Template
+                </FieldLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-background border-input">
                     <SelectValue placeholder="Select a theme" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="darsana">Darsana Premium</SelectItem>
                     <SelectItem value="elegant">Elegant Minimalist</SelectItem>
+                    <SelectItem value="minimal">Modern Minimalist</SelectItem>
+                    <SelectItem value="luxury">Midnight Luxury</SelectItem>
+                    <SelectItem value="floral">Botanical Floral</SelectItem>
                   </SelectContent>
                 </Select>
                 {form.formState.errors.theme && (
@@ -129,24 +204,28 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
           />
         </div>
       </SectionCard>
+
       <SectionCard
         title="Publishing Status"
-        description="Control the visibility and lifecycle of this invitation."
+        description="Control the lifecycle and visibility of this invitation."
+        className="border border-border/80 shadow-sm"
       >
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-5 sm:grid-cols-2">
           <Controller
             control={form.control}
             name="status"
             render={({ field }) => (
               <Field>
-                <FieldLabel>Status</FieldLabel>
+                <FieldLabel className="text-foreground font-semibold flex items-center gap-1.5">
+                  <Shield className="w-4 h-4 text-emerald-500" /> Status
+                </FieldLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-background border-input">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="draft">Draft (Private)</SelectItem>
+                    <SelectItem value="published">Published (Public)</SelectItem>
                     <SelectItem value="archived">Archived</SelectItem>
                   </SelectContent>
                 </Select>
@@ -157,17 +236,24 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
             )}
           />
         </div>
-      </SectionCard>{" "}
-      <SectionCard title="Settings" description="General configuration settings.">
-        <div className="grid gap-4 sm:grid-cols-2">
+      </SectionCard>
+
+      <SectionCard
+        title="Configuration Settings"
+        description="Language and media playback settings."
+        className="border border-border/80 shadow-sm"
+      >
+        <div className="grid gap-5 sm:grid-cols-2">
           <Controller
             control={form.control}
             name="locale"
             render={({ field }) => (
               <Field>
-                <FieldLabel>Locale (Language)</FieldLabel>
+                <FieldLabel className="text-foreground font-semibold flex items-center gap-1.5">
+                  <Globe className="w-4 h-4 text-cyan-500" /> Locale (Language)
+                </FieldLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-background border-input">
                     <SelectValue placeholder="Select locale" />
                   </SelectTrigger>
                   <SelectContent>
@@ -186,9 +272,12 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
             control={form.control}
             name="music_auto_play"
             render={({ field }) => (
-              <Field className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
+              <Field className="flex flex-row items-center justify-between rounded-xl border border-input p-4 bg-background shadow-xs">
                 <div className="space-y-0.5">
-                  <FieldLabel className="text-base">Autoplay Music</FieldLabel>
+                  <FieldLabel className="text-sm font-semibold text-foreground">
+                    Autoplay Music
+                  </FieldLabel>
+                  <FieldDescription>Play background music upon opening.</FieldDescription>
                 </div>
                 <Switch checked={field.value} onCheckedChange={field.onChange} />
               </Field>

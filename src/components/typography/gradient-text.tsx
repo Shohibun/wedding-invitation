@@ -12,7 +12,7 @@ export const GradientText = React.forwardRef<HTMLSpanElement, GradientTextProps>
     return (
       <span
         ref={ref}
-        className={cn("bg-clip-text text-transparent bg-gradient-to-r", from, via, to, className)}
+        className={cn("bg-clip-text text-transparent bg-linear-to-r", from, via, to, className)}
         {...props}
       />
     );

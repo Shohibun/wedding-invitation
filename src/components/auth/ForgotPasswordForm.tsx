@@ -2,6 +2,9 @@
 
 import React, { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 export const ForgotPasswordForm: React.FC = () => {
   const { forgotPassword } = useAuth();
@@ -23,36 +26,28 @@ export const ForgotPasswordForm: React.FC = () => {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-4 max-w-sm w-full mx-auto p-6 bg-white border border-gray-200 rounded-lg shadow-sm"
-    >
-      <h2 className="text-xl font-bold text-gray-900 mb-2">Reset Password</h2>
-
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full">
       {message && (
-        <div className="p-3 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded">
+        <div className="p-3 text-sm text-primary bg-primary/10 border border-primary/20 rounded-md">
           {message}
         </div>
       )}
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-        <input
+      <div className="space-y-2">
+        <Label htmlFor="forgot-email">Email</Label>
+        <Input
+          id="forgot-email"
           type="email"
           required
+          placeholder="name@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="mt-2 w-full bg-gray-900 text-white font-medium py-2 px-4 rounded hover:bg-gray-800 disabled:opacity-50"
-      >
+      <Button type="submit" disabled={loading} className="w-full mt-2">
         {loading ? "Sending..." : "Send Reset Link"}
-      </button>
+      </Button>
     </form>
   );
 };

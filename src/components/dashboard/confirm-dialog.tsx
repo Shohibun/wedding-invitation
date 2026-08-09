@@ -32,7 +32,7 @@ export function ConfirmDialog({
 }) {
   return (
     <AlertDialog>
-      <AlertDialogTrigger render={trigger} />
+      <AlertDialogTrigger nativeButton={false} render={trigger} />
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>

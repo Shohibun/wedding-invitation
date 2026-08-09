@@ -115,13 +115,10 @@ export function InvitationClientList({ initialData }: { initialData: InvitationW
     {
       header: "Status",
       cell: (row: InvitationWithDetails) => {
+        const statusStr = (row.status || "draft").toString();
         const variant =
-          row.status === "published"
-            ? "success"
-            : row.status === "archived"
-              ? "pending"
-              : "warning";
-        return <StatusBadge status={variant}>{row.status.toUpperCase()}</StatusBadge>;
+          statusStr === "published" ? "success" : statusStr === "archived" ? "pending" : "warning";
+        return <StatusBadge status={variant}>{statusStr.toUpperCase()}</StatusBadge>;
       },
     },
     {

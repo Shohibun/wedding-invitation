@@ -25,7 +25,7 @@ export default function AdminNotFound() {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button render={<Link href="/dashboard" />} variant="outline">
+          <Button nativeButton={false} render={<Link href="/dashboard" />} variant="outline">
             Return to Dashboard
           </Button>
         </EmptyContent>

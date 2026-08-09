@@ -63,6 +63,9 @@ export const useAuth = () => {
 
   const logout = async () => {
     await AuthService.logout();
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
   };
 
   const forgotPassword = async (data: ForgotPasswordRequestDTO) => {

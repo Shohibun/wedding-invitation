@@ -12,7 +12,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { ThemeToggle } from "./theme-toggle";
-import { UserDropdown } from "./user-dropdown";
 
 export function TopNavigation() {
   const pathname = usePathname();
@@ -48,7 +47,6 @@ export function TopNavigation() {
 
       <div className="flex items-center gap-2">
         <ThemeToggle />
-        <UserDropdown />
       </div>
     </header>
   );

@@ -22,7 +22,9 @@ export default async function InvitationsPage() {
   return (
     <PageContainer>
       <PageHeader heading="Invitations" text="Manage all wedding invitations in the system.">
-        <Button render={<Link href="/invitations/create" />}>Create New</Button>
+        <Button nativeButton={false} render={<Link href="/invitations/create" />}>
+          Create New
+        </Button>
       </PageHeader>
 
       <div className="mt-6">

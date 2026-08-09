@@ -55,7 +55,7 @@ function SortableItem({ item, onDelete }: { item: GalleryItem; onDelete: (url: s
     <div
       ref={setNodeRef}
       style={style}
-      className={`relative group rounded-md overflow-hidden aspect-[4/5] border ${isDragging ? "shadow-xl opacity-80" : "shadow-sm"}`}
+      className={`relative group rounded-md overflow-hidden aspect-4/5 border ${isDragging ? "shadow-xl opacity-80" : "shadow-sm"}`}
     >
       <div
         className="absolute top-2 left-2 z-20 opacity-0 group-hover:opacity-100 bg-background/80 backdrop-blur-sm p-1 rounded cursor-grab active:cursor-grabbing"
@@ -151,7 +151,7 @@ export function GalleryUploader({
           {uploads.map((upload) => (
             <div
               key={upload.id}
-              className="relative rounded-md overflow-hidden aspect-[4/5] border shadow-sm bg-surfaceMuted flex flex-col items-center justify-center p-4"
+              className="relative rounded-md overflow-hidden aspect-4/5 border shadow-sm bg-surfaceMuted flex flex-col items-center justify-center p-4"
             >
               <Loader2 className="w-6 h-6 animate-spin text-primary mb-2" />
               <p className="text-xs text-textMuted">Uploading...</p>
@@ -162,7 +162,7 @@ export function GalleryUploader({
           <MediaDropzone
             onFileSelect={handleFileSelect}
             accept="image/jpeg, image/png, image/webp"
-            className="aspect-[4/5] min-h-0 h-auto"
+            className="aspect-4/5 min-h-0 h-auto"
           >
             <div className="flex flex-col items-center justify-center p-4 text-center text-textMuted">
               <ImageIcon className="w-6 h-6 mb-2" />

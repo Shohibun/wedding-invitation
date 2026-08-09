@@ -3,12 +3,23 @@
 import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/features/auth/server-guards";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { InvitationService } from "@/features/invitation/service";
 import { InvitationInput } from "@/features/invitation/schema";
 
 async function getService() {
-  const supabase = await createClient();
-  return new InvitationService(supabase);
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (serviceRoleKey) {
+    const adminClient = createSupabaseClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false },
+    });
+    return new InvitationService(adminClient);
+  }
+
+  const clientWithCookies = await createClient();
+  return new InvitationService(clientWithCookies);
 }
 
 export async function bulkDeleteInvitations(ids: string[]) {
@@ -50,15 +61,30 @@ export async function deleteInvitation(id: string) {
 export async function saveInvitation(payload: InvitationInput, id?: string) {
   try {
     await requireAuth();
+
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    const clientWithCookies = await createClient();
+    const { data: authData } = await clientWithCookies.auth.getUser();
+
+    const fullPayload: any = {
+      ...payload,
+    };
+
+    if (authData?.user?.id) {
+      fullPayload.user_id = authData.user.id;
+    }
+
     const service = await getService();
     let resultId = id;
+
     if (id) {
-      const result = await service.update(id, payload);
+      const result = await service.update(id, fullPayload);
       resultId = result.id;
     } else {
-      const result = await service.create(payload);
+      const result = await service.create(fullPayload);
       resultId = result.id;
     }
+
     revalidatePath("/invitations");
     return { success: true, id: resultId };
   } catch (error: unknown) {
