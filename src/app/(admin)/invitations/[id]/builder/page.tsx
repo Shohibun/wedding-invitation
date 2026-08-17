@@ -8,7 +8,13 @@ import { BuilderProvider } from "@/features/builder/context/BuilderProvider";
 
 export const revalidate = 0;
 
-export default async function BuilderPage({ params }: { params: { id: string } }) {
+export default async function BuilderPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
+  if (!id || id === "undefined") {
+    notFound();
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseKey =
     process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -17,23 +23,22 @@ export default async function BuilderPage({ params }: { params: { id: string } }
   });
 
   const invitationService = new InvitationService(supabase);
-  const invitation = await invitationService.getById(params.id);
+  const invitation = await invitationService.getById(id);
 
   if (!invitation) {
     notFound();
   }
 
-  // Load the draft. If it doesn't exist, we will use the default template config.
-  const draft = await DraftService.getDraft(params.id);
+  const draft = await DraftService.getDraft(id);
   let payload = draft ? DraftService.prepareBuilderData(draft) : null;
 
   if (!payload) {
-    payload = JSON.parse(JSON.stringify(darsanaConfig)); // Base template config
+    payload = JSON.parse(JSON.stringify(darsanaConfig));
   }
 
   return (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    <BuilderProvider initialData={payload as Record<string, any>} invitationId={params.id}>
+    <BuilderProvider initialData={payload as Record<string, any>} invitationId={id}>
       <BuilderShell invitation={invitation} />
     </BuilderProvider>
   );

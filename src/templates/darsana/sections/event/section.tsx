@@ -5,12 +5,12 @@ import { motion } from "framer-motion";
 import { EventSectionProps } from "./types";
 import { useTemplateData } from "@/templates/core/hooks";
 import { Container } from "@/components/layout/container";
-import { Grid } from "@/components/layout/grid";
 import { Heading } from "@/components/typography/heading";
 import { Text } from "@/components/typography/text";
 import { SectionTitle } from "@/components/typography/section-title";
 import { Button } from "@/components/ui/button";
 import { eventVariants, itemVariants } from "./animations";
+import { MapPin, Calendar, Clock, Sparkles } from "lucide-react";
 
 import { formatDate } from "@/lib/utils/format-date";
 
@@ -24,91 +24,125 @@ export function EventSection({ className }: EventSectionProps) {
   if (!events.length) return null;
 
   return (
-    <section className={`w-full py-24 bg-muted/20 ${className || ""}`}>
+    <section className={`w-full py-14 sm:py-20 md:py-24 bg-muted/20 ${className || ""}`}>
       <Container>
         <motion.div
           variants={eventVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="flex flex-col items-center"
+          viewport={{ once: true, margin: "-50px" }}
+          className="flex flex-col items-center w-full"
         >
-          <SectionTitle title="Wedding Events" subtitle="Save the Date" />
+          <SectionTitle title="Wedding Events" subtitle="Rangkaian Acara Bahagia" />
 
-          <Grid cols={1} className="md:grid-cols-2 gap-12 mt-16 w-full max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 @lg:grid-cols-2 gap-6 sm:gap-8 mt-8 sm:mt-12 w-full max-w-md @lg:max-w-4xl mx-auto">
             {events.map(
               (
                 event: Record<
                   string,
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   any
-                >
+                >,
+                index: number
               ) => {
-                const startDate = new Date(event.date);
-                const endDate = new Date(event.endDate);
-                const dateStr = formatDate(event.date);
-                const timeStr = `${startDate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} - ${endDate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} WIB`;
+                const dateStr = event.date ? formatDate(event.date) : "Tanggal Acara";
+
+                // Resolve exact time entered in editor
+                let timeDisplay = "";
+                if (event.time) {
+                  timeDisplay = `${event.time} WIB`;
+                } else if (event.startTime) {
+                  timeDisplay = event.endTime
+                    ? `${event.startTime} - ${event.endTime} WIB`
+                    : `${event.startTime} WIB`;
+                } else {
+                  timeDisplay = "09:00 - Selesai WIB";
+                }
+
+                const locationName =
+                  event.locationName || event.venue || event.location || "Lokasi Acara";
+                const address = event.address || "Alamat lengkap acara pernikahan";
+                const mapsUrl = event.mapsUrl || event.googleMapsUrl || event.mapUrl;
 
                 return (
                   <motion.div
-                    key={event.id}
+                    key={event.id || event.title || event.name || `event-${index}`}
                     variants={itemVariants}
-                    className="flex flex-col bg-background p-8 md:p-10 rounded-2xl shadow-sm border border-border/50 text-center items-center"
+                    className="w-full flex flex-col bg-card/95 backdrop-blur-md p-6 sm:p-7 rounded-3xl shadow-xl shadow-black/5 border border-amber-500/20 text-center items-center relative overflow-hidden"
                   >
-                    <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-6">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="28"
-                        height="28"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="lucide lucide-calendar-heart"
-                      >
-                        <path d="M8 2v4" />
-                        <path d="M16 2v4" />
-                        <path d="M21 8.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5.5" />
-                        <path d="M3 10h18" />
-                        <path d="M21.124 14.839c.56 1.059.52 2.455-.107 3.514l-2.673 4.518c-.467.79-1.619.79-2.086 0l-2.67-4.514a3.178 3.178 0 0 1-.11-3.518c.633-1.15 2-1.745 3.328-1.488a3.184 3.184 0 0 1 2.308-1.503c1.332-.163 2.658.554 3.31 1.849z" />
-                      </svg>
+                    {/* Top Corner Glow */}
+                    <div className="absolute top-0 right-0 w-28 h-28 bg-amber-500/10 rounded-full blur-xl pointer-events-none" />
+
+                    {/* Icon Badge */}
+                    <div className="w-13 h-13 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-4 shadow-xs">
+                      <Sparkles className="w-6 h-6 text-amber-500" />
                     </div>
 
-                    <Heading level={3} className="font-light mb-4">
-                      {event.name}
+                    {/* Event Title */}
+                    <Heading
+                      level={3}
+                      className="font-serif font-medium text-xl sm:text-2xl mb-2 text-foreground tracking-wide"
+                    >
+                      {event.title ||
+                        event.name ||
+                        (index === 0 ? "Akad Nikah" : "Resepsi Pernikahan")}
                     </Heading>
 
-                    <Text className="font-medium text-foreground mb-1">{dateStr}</Text>
-                    <Text className="text-muted-foreground mb-6">{timeStr}</Text>
+                    {/* Date & Time */}
+                    <div className="flex flex-col items-center gap-1 my-2">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold">
+                        <Calendar className="w-3.5 h-3.5" />
+                        <span>{dateStr}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+                        <Clock className="w-3.5 h-3.5 text-muted-foreground/80" />
+                        <span>{timeDisplay}</span>
+                      </div>
+                    </div>
 
-                    <div className="w-12 h-px bg-border mb-6" />
+                    <div className="w-16 h-px bg-amber-500/30 my-4" />
 
-                    <Heading level={5} className="font-medium mb-2">
-                      {event.locationName}
+                    {/* Location & Address */}
+                    <Heading
+                      level={5}
+                      className="font-semibold text-sm sm:text-base text-foreground mb-1"
+                    >
+                      {locationName}
                     </Heading>
-                    <Text size="sm" className="text-muted-foreground mb-8 line-clamp-2">
-                      {event.address}
+                    <Text
+                      size="sm"
+                      className="text-muted-foreground text-xs leading-relaxed max-w-xs mb-6"
+                    >
+                      {address}
                     </Text>
 
-                    <div className="flex gap-4 mt-auto">
+                    {/* Action Buttons */}
+                    <div className="flex flex-col gap-2.5 w-full mt-auto">
+                      {mapsUrl && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full rounded-full text-xs h-9 gap-1.5 border-amber-500/30 hover:bg-amber-500/10 text-foreground"
+                          onClick={() => window.open(mapsUrl, "_blank")}
+                        >
+                          <MapPin className="w-3.5 h-3.5 text-amber-500" />
+                          <span>Petunjuk Arah (Google Maps)</span>
+                        </Button>
+                      )}
                       <Button
-                        variant="outline"
-                        className="rounded-full"
-                        onClick={() => window.open(event.mapUrl, "_blank")}
+                        variant="default"
+                        size="sm"
+                        className="w-full rounded-full text-xs h-9 gap-1.5 bg-linear-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md shadow-amber-500/20"
                       >
-                        View Map
-                      </Button>
-                      <Button variant="default" className="rounded-full">
-                        Add to Calendar
+                        <Calendar className="w-3.5 h-3.5" />
+                        <span>Simpan ke Kalender</span>
                       </Button>
                     </div>
                   </motion.div>
                 );
               }
             )}
-          </Grid>
+          </div>
         </motion.div>
       </Container>
     </section>

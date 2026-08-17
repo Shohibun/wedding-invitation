@@ -18,29 +18,34 @@ export function useAutosave(
   options: UseAutosaveOptions
 ) {
   const { setIsSaving, setSaveStatus, setLastSavedAt } = options;
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isFirstRender = useRef(true);
   const isCurrentlySaving = useRef(false);
 
-  const saveDraft = useCallback(
+  // Function to commit draft explicitly to Supabase DB (triggered by "Simpan" button)
+  const saveDraftToCloud = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (data: Record<string, any>) => {
-      if (isCurrentlySaving.current) return; // Prevent overlapping saves
+      if (isCurrentlySaving.current) return;
 
       try {
         isCurrentlySaving.current = true;
         setIsSaving(true);
         setSaveStatus("saving");
 
-        // We wrap it in { payload: data } because DraftService expects it
+        // Sync to local storage backup
+        if (typeof window !== "undefined") {
+          localStorage.setItem(`draft_backup_${invitationId}`, JSON.stringify(data));
+        }
+
+        // Commit permanently to Supabase DB
         await DraftService.saveDraft(invitationId, { payload: data });
 
         setLastSavedAt(new Date());
         setSaveStatus("saved");
       } catch (error) {
-        console.error("Autosave failed:", error);
+        console.error("Cloud save failed:", error);
         setSaveStatus("error");
-        toast.error("Failed to save draft automatically.");
+        toast.error("Failed to save draft to Supabase.");
       } finally {
         setIsSaving(false);
         isCurrentlySaving.current = false;
@@ -49,37 +54,32 @@ export function useAutosave(
     [invitationId, setIsSaving, setSaveStatus, setLastSavedAt]
   );
 
+  // Watch form changes and sync ONLY to localStorage for real-time preview & persistence across refresh
   useEffect(() => {
-    // Watch for any form changes
-    const subscription = methods.watch(() => {
-      // Don't save on the very first mount render
+    const subscription = methods.watch((value) => {
       if (isFirstRender.current) {
         isFirstRender.current = false;
         return;
       }
 
-      // If there's an existing timeout, clear it
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      // Sync locally to localStorage immediately for instant live preview and local persistence
+      if (typeof window !== "undefined" && value) {
+        try {
+          const currentValues = methods.getValues();
+          localStorage.setItem(`draft_backup_${invitationId}`, JSON.stringify(currentValues));
+        } catch {
+          // Ignore quota error
+        }
       }
 
+      // Mark status as idle / unsaved changes locally until user clicks Simpan button
       setSaveStatus("idle");
-
-      // Set a new timeout to trigger save after 1.5 seconds of inactivity
-      timeoutRef.current = setTimeout(() => {
-        // We get the latest exact values from the form
-        const currentData = methods.getValues();
-        saveDraft(currentData);
-      }, 1500);
     });
 
     return () => {
       subscription.unsubscribe();
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
     };
-  }, [methods, saveDraft, setSaveStatus]);
+  }, [methods, invitationId, setSaveStatus]);
 
-  return saveDraft;
+  return saveDraftToCloud;
 }

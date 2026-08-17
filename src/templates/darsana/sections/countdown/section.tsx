@@ -2,95 +2,93 @@
 
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { CountdownSectionProps } from "./types";
 import { useTemplateData } from "@/templates/core/hooks";
 import { Container } from "@/components/layout/container";
-import { Heading } from "@/components/typography/heading";
-import { Text } from "@/components/typography/text";
-import { countdownVariants, boxVariants } from "./animations";
+import { countdownVariants } from "./animations";
+import { Sparkles } from "lucide-react";
+
+interface TimeLeft {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
 
 export function CountdownSection({ className }: CountdownSectionProps) {
   const data = useTemplateData<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Record<string, any>
   >();
-  const targetDateStr = data?.events?.[0]?.date;
-  const targetDate = targetDateStr
-    ? new Date(targetDateStr).getTime()
-    : new Date().getTime() + 86400000 * 30; // 30 days default
+  const events = data?.events;
+  const targetDateStr = events?.[0]?.date || new Date().toISOString();
 
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = targetDate - now;
+    const calculateTimeLeft = () => {
+      const difference = +new Date(targetDateStr) - +new Date();
 
-      if (distance < 0) {
-        clearInterval(interval);
-        return;
+      if (difference > 0) {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((difference / 1000 / 60) % 60),
+          seconds: Math.floor((difference / 1000) % 60),
+        });
       }
+    };
 
-      setTimeLeft({
-        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((distance % (1000 * 60)) / 1000),
-      });
-    }, 1000);
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
+    return () => clearInterval(timer);
+  }, [targetDateStr]);
 
-    return () => clearInterval(interval);
-  }, [targetDate]);
+  const timeUnits = [
+    { label: "Hari", value: timeLeft.days },
+    { label: "Jam", value: timeLeft.hours },
+    { label: "Menit", value: timeLeft.minutes },
+    { label: "Detik", value: timeLeft.seconds },
+  ];
 
   return (
-    <section className={`w-full py-20 bg-primary text-primary-foreground ${className || ""}`}>
-      <Container className="flex flex-col items-center text-center">
+    <section
+      className={`w-full py-12 sm:py-16 md:py-20 bg-linear-to-b from-background via-muted/20 to-background ${className || ""}`}
+    >
+      <Container className="flex flex-col items-center">
         <motion.div
           variants={countdownVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="flex flex-col items-center gap-8 w-full max-w-2xl"
+          viewport={{ once: true, margin: "-50px" }}
+          className="flex flex-col items-center text-center w-full max-w-lg"
         >
-          <Heading level={3} className="font-light tracking-wide">
-            Menuju Hari Bahagia
-          </Heading>
+          {/* Header */}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-[10px] sm:text-xs font-semibold tracking-widest uppercase mb-6 shadow-xs">
+            <Sparkles className="w-3 h-3 text-amber-500" />
+            <span>Menghitung Hari</span>
+          </div>
 
-          <div className="flex justify-center gap-4 md:gap-8 w-full">
-            {[
-              { label: "Hari", value: timeLeft.days },
-              { label: "Jam", value: timeLeft.hours },
-              { label: "Menit", value: timeLeft.minutes },
-              { label: "Detik", value: timeLeft.seconds },
-            ].map((item) => (
-              <motion.div
-                key={item.label}
-                variants={boxVariants}
-                className="flex flex-col items-center justify-center bg-background/10 backdrop-blur-sm border border-primary-foreground/20 rounded-xl p-4 md:p-6 w-20 md:w-28 shadow-xl"
+          {/* 4 Timer Boxes (Fit side by side perfectly on all mobile viewports) */}
+          <div className="flex justify-center gap-2 sm:gap-3.5 w-full">
+            {timeUnits.map((unit, idx) => (
+              <div
+                key={idx}
+                className="flex-1 max-w-19 sm:max-w-22 flex flex-col items-center justify-center p-2.5 sm:p-4 rounded-2xl bg-card/90 backdrop-blur-md border border-amber-500/25 shadow-lg shadow-black/5"
               >
-                <div className="overflow-hidden h-[3rem] md:h-[4rem] flex items-center justify-center">
-                  <AnimatePresence mode="popLayout">
-                    <motion.div
-                      key={item.value}
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: -20, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <Heading level={2} className="font-light m-0">
-                        {item.value < 10 ? `0${item.value}` : item.value}
-                      </Heading>
-                    </motion.div>
-                  </AnimatePresence>
-                </div>
-                <Text
-                  size="sm"
-                  className="uppercase tracking-widest text-xs md:text-sm mt-2 opacity-80"
-                >
-                  {item.label}
-                </Text>
-              </motion.div>
+                <span className="font-serif text-xl sm:text-2xl md:text-3xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">
+                  {String(unit.value).padStart(2, "0")}
+                </span>
+                <span className="text-[9px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider mt-1">
+                  {unit.label}
+                </span>
+              </div>
             ))}
           </div>
         </motion.div>

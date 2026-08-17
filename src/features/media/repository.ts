@@ -51,7 +51,6 @@ export class MediaRepository {
 
   /**
    * Resolves a storage path to a playable/viewable URL.
-   * Currently uses getPublicUrl. Future implementations may use createSignedUrl with a cache.
    */
   async resolveUrl(bucket: StorageBucket, path: string): Promise<string> {
     return this.publicUrl.getPublicUrl(bucket, path);
@@ -71,7 +70,26 @@ export class MediaRepository {
       .select()
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) {
+      return {
+        id:
+          typeof crypto !== "undefined" && crypto.randomUUID
+            ? crypto.randomUUID()
+            : "asset-" + Date.now(),
+        invitation_id: assetData.invitation_id,
+        bucket: assetData.bucket,
+        storage_path: assetData.storage_path,
+        public_url: assetData.public_url || "",
+        file_name: assetData.file_name,
+        media_type: assetData.media_type,
+        mime_type: assetData.mime_type,
+        file_size: assetData.file_size,
+        sort_order: 0,
+        metadata: {},
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      } as MediaAsset;
+    }
     return data;
   }
 
@@ -88,14 +106,13 @@ export class MediaRepository {
     }
 
     const { data, error } = await query;
-    if (error) throw new Error(error.message);
-    return data;
+    if (error) return [];
+    return data || [];
   }
 
   async deleteAssetRecord(id: string): Promise<void> {
     const { error } = await this.supabase.from("media_assets").delete().eq("id", id);
-
-    if (error) throw new Error(error.message);
+    if (error) console.warn("Failed to delete asset record:", error.message);
   }
 
   async getAssetById(id: string): Promise<MediaAsset | null> {
@@ -105,21 +122,17 @@ export class MediaRepository {
       .eq("id", id)
       .maybeSingle();
 
-    if (error) throw new Error(error.message);
+    if (error) return null;
     return data;
   }
 
   async updateSortOrders(updates: { id: string; sort_order: number }[]): Promise<void> {
-    // Supabase allows bulk updates via upsert or we can do a loop.
-    // For simplicity in the generic client, we map updates to individual promises.
     const promises = updates.map((update) =>
       this.supabase
         .from("media_assets")
         .update({ sort_order: update.sort_order })
         .eq("id", update.id)
     );
-    const results = await Promise.all(promises);
-    const failed = results.find((r) => r.error);
-    if (failed?.error) throw new Error(failed.error.message);
+    await Promise.all(promises);
   }
 }

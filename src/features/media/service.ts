@@ -48,12 +48,17 @@ export class MediaService {
       }
 
       // 4. Upload to Storage
-      const result = await this.repository.upload(bucket, finalPath, file, file.type);
+      const result = await this.repository.upload(
+        bucket as StorageBucket,
+        finalPath,
+        file,
+        file.type
+      );
 
       const asset = await this.repository.insertAsset({
         invitation_id: payload.invitation_id,
         bucket: bucket,
-        storage_path: result.path,
+        storage_path: result?.path || finalPath,
         public_url: "", // The repo or frontend can resolve this
         file_name: file.name,
         media_type: payload.media_type,
@@ -86,7 +91,6 @@ export class MediaService {
 
   /**
    * Resolves a storage path into a playable/viewable URL.
-   * Future-proofed to return a Promise for eventual Signed URL caching.
    */
   async resolveUrl(bucket: StorageBucket, path: string): Promise<string> {
     return this.repository.resolveUrl(bucket, path);
@@ -138,7 +142,7 @@ export class MediaService {
         return { data: null, error: parsed.error.issues[0]?.message || "Invalid parameters" };
       }
 
-      await this.repository.delete(parsed.data.bucket, parsed.data.paths);
+      await this.repository.delete(parsed.data.bucket as StorageBucket, parsed.data.paths);
       return { data: undefined, error: null };
     } catch (error: unknown) {
       return {
@@ -155,7 +159,11 @@ export class MediaService {
         return { data: null, error: "Invalid parameters" };
       }
 
-      await this.repository.move(parsed.data.bucket, parsed.data.fromPath, parsed.data.toPath);
+      await this.repository.move(
+        parsed.data.bucket as StorageBucket,
+        parsed.data.fromPath,
+        parsed.data.toPath
+      );
       return { data: undefined, error: null };
     } catch (error: unknown) {
       return { data: null, error: error instanceof Error ? error.message : "Failed to move file" };
@@ -163,9 +171,8 @@ export class MediaService {
   }
 
   async renameFile(payload: MediaRenamePayload): Promise<MediaResult<void>> {
-    // Renaming is effectively a move within the same directory
     const parts = payload.currentPath.split("/");
-    parts.pop(); // remove old filename
+    parts.pop();
     const dir = parts.join("/");
     const toPath = dir ? `${dir}/${payload.newName}` : payload.newName;
 

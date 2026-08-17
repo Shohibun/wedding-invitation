@@ -2,133 +2,294 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { CoverSectionProps } from "./types";
-import { useTemplateData } from "@/templates/core/hooks";
-import { Container } from "@/components/layout/container";
+import { useTemplateData, useTemplate } from "@/templates/core/hooks";
 import { Heading } from "@/components/typography/heading";
 import { Text } from "@/components/typography/text";
 import { Button } from "@/components/ui/button";
-import { coverVariants, itemVariants } from "./animations";
-
 import { formatDate } from "@/lib/utils/format-date";
+import { MailOpen, RotateCcw, VolumeX, Volume2 } from "lucide-react";
 
 export function CoverSection({ className }: CoverSectionProps) {
+  const templateContext = useTemplate();
+  const setIsCoverOpen = templateContext?.setIsCoverOpen;
+
   const data = useTemplateData<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Record<string, any>
   >();
+
   const couple = data?.couple;
   const events = data?.events;
   const firstEventDate = events?.[0]?.date;
-  const guestName = data?.guest?.name || "Tamu Undangan"; // Placeholder since guest data isn't in mock yet
+  const guestName = data?.guest?.name || "Tamu Undangan";
 
+  const coverImage =
+    data?.cover?.image ||
+    "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2070&auto=format&fit=crop";
+  const coverTitle = data?.cover?.title || "The Wedding Of";
+  const coverGreeting = data?.cover?.greeting || "Kepada Yth. Bapak/Ibu/Saudara/i:";
+  const buttonText = data?.cover?.buttonText || "Buka Undangan";
+  const musicUrl =
+    data?.cover?.musicUrl || "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [isPlayingMusic, setIsPlayingMusic] = React.useState(false);
   const audioRef = React.useRef<HTMLAudioElement>(null);
 
+  // Sync local isOpen state with template-wide LayoutEngine
+  React.useEffect(() => {
+    if (setIsCoverOpen) {
+      setIsCoverOpen(isOpen);
+    }
+  }, [isOpen, setIsCoverOpen]);
+
+  // Lock scroll on parent containers when cover is closed
+  React.useEffect(() => {
+    const lockScroll = () => {
+      const scrollContainers = document.querySelectorAll(
+        ".builder-preview-container, .preview-frame-scroll, body"
+      );
+      scrollContainers.forEach((el) => {
+        if (!isOpen) {
+          (el as HTMLElement).style.overflow = "hidden";
+          (el as HTMLElement).scrollTop = 0;
+        } else {
+          (el as HTMLElement).style.overflow = "";
+        }
+      });
+    };
+
+    lockScroll();
+
+    return () => {
+      const scrollContainers = document.querySelectorAll(
+        ".builder-preview-container, .preview-frame-scroll, body"
+      );
+      scrollContainers.forEach((el) => {
+        (el as HTMLElement).style.overflow = "";
+      });
+    };
+  }, [isOpen]);
+
   const handleOpenInvitation = () => {
-    if (audioRef.current) {
-      audioRef.current.play().catch((err) => console.error("Audio play failed:", err));
+    setIsOpen(true);
+    if (audioRef.current && musicUrl) {
+      try {
+        const audio = audioRef.current;
+        audio.muted = false;
+        audio.volume = 1.0;
+        audio.currentTime = 0;
+
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => setIsPlayingMusic(true))
+            .catch((err) => {
+              console.warn("Audio autoplay blocked by browser or delayed:", err);
+              // Fallback retry after slight DOM stabilization
+              setTimeout(() => {
+                if (audioRef.current) {
+                  audioRef.current
+                    .play()
+                    .then(() => setIsPlayingMusic(true))
+                    .catch(() => {});
+                }
+              }, 150);
+            });
+        }
+      } catch (err) {
+        console.warn("Audio play error:", err);
+      }
+    }
+  };
+
+  const handleToggleMusic = () => {
+    if (!audioRef.current) return;
+    if (isPlayingMusic) {
+      audioRef.current.pause();
+      setIsPlayingMusic(false);
+    } else {
+      audioRef.current.muted = false;
+      audioRef.current.volume = 1.0;
+      audioRef.current
+        .play()
+        .then(() => setIsPlayingMusic(true))
+        .catch(() => setIsPlayingMusic(false));
     }
   };
 
   return (
-    <section
-      className={`relative w-full h-[100dvh] flex items-center justify-center overflow-hidden ${className || ""}`}
-    >
-      {/* Background Music Preparation */}
-      <audio ref={audioRef} preload="auto" loop>
-        <source
-          src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-          type="audio/mpeg"
+    <>
+      {/* Background Native MP3 Audio Player */}
+      {musicUrl && (
+        <audio
+          ref={audioRef}
+          preload="auto"
+          loop
+          playsInline
+          src={musicUrl}
+          onPlay={() => setIsPlayingMusic(true)}
+          onPause={() => setIsPlayingMusic(false)}
         />
-      </audio>
+      )}
 
-      {/* Background Image */}
-      <div className="absolute inset-0 -z-20">
-        <Image
-          src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2070&auto=format&fit=crop"
-          alt="Wedding Cover Background"
-          fill
-          priority
-          className="object-cover"
-        />
-      </div>
-
-      {/* Overlay */}
-      <div className="absolute inset-0 -z-10 bg-background/60 backdrop-blur-[2px]" />
-
-      <Container className="relative z-10 h-full py-12 flex flex-col justify-between items-center text-center">
-        <motion.div
-          variants={coverVariants}
-          initial="hidden"
-          animate="visible"
-          className="flex flex-col items-center mt-12 gap-2"
-        >
-          <motion.div variants={itemVariants}>
-            <Text size="sm" className="uppercase tracking-widest text-primary/80">
-              The Wedding Of
-            </Text>
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <Heading level={1} className="text-primary text-5xl md:text-7xl font-light mt-4">
-              {couple?.groom?.nickname || "Groom"} & {couple?.bride?.nickname || "Bride"}
-            </Heading>
-          </motion.div>
-
-          {firstEventDate && (
-            <motion.div variants={itemVariants} className="mt-4">
-              <Text className="text-lg md:text-xl font-medium tracking-wide text-foreground/90">
-                {formatDate(firstEventDate)}
-              </Text>
-            </motion.div>
-          )}
-        </motion.div>
-
-        <motion.div
-          variants={coverVariants}
-          initial="hidden"
-          animate="visible"
-          className="flex flex-col items-center mb-12 gap-6"
-        >
-          <motion.div variants={itemVariants} className="flex flex-col items-center gap-1">
-            <Text size="sm" className="text-muted-foreground">
-              Dear Mr/Mrs/Ms,
-            </Text>
-            <Heading level={4} className="font-semibold text-foreground">
-              {guestName}
-            </Heading>
-            <Text size="sm" className="text-muted-foreground/80 text-xs italic">
-              We apologize if there is a mistake in writing your name or title.
-            </Text>
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <Button
-              size="lg"
-              className="rounded-full shadow-lg gap-2 group"
-              onClick={handleOpenInvitation}
+      {/* Opening Dual-Split Curtain Overlay - Positioned Absolute to fit seamlessly inside Mobile Frame */}
+      <AnimatePresence>
+        {!isOpen && (
+          <div
+            key="cover-wrapper"
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+            className={`absolute inset-0 z-50 overflow-hidden select-none pointer-events-auto h-full w-full bg-black ${className || ""}`}
+          >
+            {/* Left Curtain Panel */}
+            <motion.div
+              key="curtain-left"
+              initial={{ x: 0 }}
+              exit={{
+                x: "-100%",
+                transition: { duration: 1.1, ease: [0.32, 0.72, 0, 1] },
+              }}
+              className="absolute left-0 top-0 bottom-0 w-1/2 overflow-hidden z-20 border-r border-white/10"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="lucide lucide-mail-open group-hover:-translate-y-1 transition-transform"
-              >
-                <path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z" />
-                <path d="m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10" />
-              </svg>
-              Open Invitation
-            </Button>
-          </motion.div>
-        </motion.div>
-      </Container>
-    </section>
+              <div className="absolute inset-0 w-[200%] h-full left-0">
+                <Image
+                  src={coverImage}
+                  alt="Wedding Cover Left"
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  unoptimized={coverImage.startsWith("data:")}
+                  className="object-cover"
+                />
+              </div>
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+            </motion.div>
+
+            {/* Right Curtain Panel */}
+            <motion.div
+              key="curtain-right"
+              initial={{ x: 0 }}
+              exit={{
+                x: "100%",
+                transition: { duration: 1.1, ease: [0.32, 0.72, 0, 1] },
+              }}
+              className="absolute right-0 top-0 bottom-0 w-1/2 overflow-hidden z-20 border-l border-white/10"
+            >
+              <div className="absolute inset-0 w-[200%] h-full -left-full">
+                <Image
+                  src={coverImage}
+                  alt="Wedding Cover Right"
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  unoptimized={coverImage.startsWith("data:")}
+                  className="object-cover"
+                />
+              </div>
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+            </motion.div>
+
+            {/* Center Content Overlay */}
+            <motion.div
+              key="curtain-content"
+              initial={{ opacity: 1, scale: 1 }}
+              exit={{
+                opacity: 0,
+                scale: 1.06,
+                transition: { duration: 0.5, ease: "easeOut" },
+              }}
+              className="absolute inset-0 z-30 flex flex-col justify-between items-center text-center p-3 sm:p-4 h-full w-full"
+            >
+              {/* Top Header Block (Positioned below the notch) */}
+              <div className="pt-6 sm:pt-8 flex flex-col items-center gap-1 px-2 max-w-65 mx-auto">
+                <Text
+                  size="sm"
+                  className="uppercase tracking-[0.25em] text-amber-300/90 text-[10px] sm:text-xs font-medium"
+                >
+                  {coverTitle}
+                </Text>
+                <Heading
+                  level={1}
+                  className="text-white text-xl sm:text-2xl md:text-3xl font-serif font-light tracking-wide mt-0.5 leading-tight"
+                >
+                  {couple?.groom?.nickname || "Groom"} & {couple?.bride?.nickname || "Bride"}
+                </Heading>
+                {firstEventDate && (
+                  <Text className="text-[10px] sm:text-xs font-light tracking-widest text-white/80 mt-0.5">
+                    {formatDate(firstEventDate)}
+                  </Text>
+                )}
+              </div>
+
+              {/* Bottom Glassmorphic Frosted Guest Card */}
+              <div className="w-full max-w-65 sm:max-w-70 mb-2 sm:mb-3 bg-black/60 backdrop-blur-md border border-white/15 rounded-2xl p-3 sm:p-3.5 shadow-2xl flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-0.5">
+                  <Text size="sm" className="text-white/70 text-[10px] sm:text-xs font-light">
+                    {coverGreeting}
+                  </Text>
+                  <Heading
+                    level={4}
+                    className="font-semibold text-white text-xs sm:text-sm md:text-base tracking-wide"
+                  >
+                    {guestName}
+                  </Heading>
+                  <Text
+                    size="sm"
+                    className="text-white/60 text-[9px] sm:text-[10px] italic leading-tight text-center mt-0.5"
+                  >
+                    Mohon maaf apabila ada kesalahan penulisan nama atau gelar.
+                  </Text>
+                </div>
+
+                <Button
+                  size="default"
+                  className="rounded-full bg-linear-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs font-medium shadow-xl gap-1.5 px-4 py-2 transition-transform active:scale-95 border border-white/20 mt-0.5"
+                  onClick={handleOpenInvitation}
+                >
+                  <MailOpen className="w-3.5 h-3.5 animate-bounce" />
+                  <span>{buttonText}</span>
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Music Control Button inside frame when invitation is open */}
+      {isOpen && musicUrl && (
+        <button
+          onClick={handleToggleMusic}
+          className="absolute bottom-3 left-3 z-40 bg-black/70 hover:bg-black/90 text-white text-xs p-2.5 rounded-full backdrop-blur-md border border-white/20 flex items-center justify-center shadow-lg transition-all"
+          title={isPlayingMusic ? "Jeda Musik Latar" : "Putar Musik Latar"}
+        >
+          {isPlayingMusic ? (
+            <Volume2 className="w-4 h-4 text-amber-400 animate-pulse" />
+          ) : (
+            <VolumeX className="w-4 h-4 text-white/60" />
+          )}
+        </button>
+      )}
+
+      {/* Floating Re-open Cover Control inside frame */}
+      {isOpen && (
+        <button
+          onClick={() => {
+            setIsOpen(false);
+            if (audioRef.current) {
+              audioRef.current.pause();
+              setIsPlayingMusic(false);
+            }
+          }}
+          className="absolute bottom-3 right-3 z-40 bg-black/60 hover:bg-black/80 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-md border border-white/20 flex items-center gap-1.5 shadow-lg transition-all"
+          title="Tutup kembali sampul"
+        >
+          <RotateCcw className="w-3 h-3" />
+          <span>Sampul Depan</span>
+        </button>
+      )}
+    </>
   );
 }

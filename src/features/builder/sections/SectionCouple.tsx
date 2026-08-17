@@ -1,18 +1,34 @@
 "use client";
 
 import React from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageUploader } from "@/components/media/ImageUploader";
 import { useBuilderContext } from "../context/BuilderProvider";
 
 export function SectionCouple() {
-  const { register, setValue, watch } = useFormContext();
+  const { register, setValue } = useFormContext();
   const { invitationId } = useBuilderContext();
 
-  const groomPhoto = watch("couple.groom.photoUrl");
-  const bridePhoto = watch("couple.bride.photoUrl");
+  const groomPhoto = useWatch({ name: "couple.groom.photoUrl" }) || "";
+  const bridePhoto = useWatch({ name: "couple.bride.photoUrl" }) || "";
+
+  const handleGroomPhotoSuccess = (url: string) => {
+    setValue("couple.groom.photoUrl", url, {
+      shouldDirty: true,
+      shouldValidate: true,
+      shouldTouch: true,
+    });
+  };
+
+  const handleBridePhotoSuccess = (url: string) => {
+    setValue("couple.bride.photoUrl", url, {
+      shouldDirty: true,
+      shouldValidate: true,
+      shouldTouch: true,
+    });
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -25,8 +41,14 @@ export function SectionCouple() {
             invitationId={invitationId}
             bucket="invitation-media"
             currentUrl={groomPhoto}
-            onSuccess={(url) => setValue("couple.groom.photoUrl", url, { shouldDirty: true })}
-            onDelete={() => setValue("couple.groom.photoUrl", "", { shouldDirty: true })}
+            onSuccess={handleGroomPhotoSuccess}
+            onDelete={() => {
+              setValue("couple.groom.photoUrl", "", {
+                shouldDirty: true,
+                shouldValidate: true,
+                shouldTouch: true,
+              });
+            }}
           />
         </div>
 
@@ -57,8 +79,14 @@ export function SectionCouple() {
             invitationId={invitationId}
             bucket="invitation-media"
             currentUrl={bridePhoto}
-            onSuccess={(url) => setValue("couple.bride.photoUrl", url, { shouldDirty: true })}
-            onDelete={() => setValue("couple.bride.photoUrl", "", { shouldDirty: true })}
+            onSuccess={handleBridePhotoSuccess}
+            onDelete={() => {
+              setValue("couple.bride.photoUrl", "", {
+                shouldDirty: true,
+                shouldValidate: true,
+                shouldTouch: true,
+              });
+            }}
           />
         </div>
 

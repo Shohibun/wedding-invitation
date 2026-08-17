@@ -7,6 +7,7 @@ import { useTemplateData } from "@/templates/core/hooks";
 import { Container } from "@/components/layout/container";
 import { Text } from "@/components/typography/text";
 import { quoteVariants } from "./animations";
+import { Quote } from "lucide-react";
 
 export function QuoteSection({ className }: QuoteSectionProps) {
   const data = useTemplateData<
@@ -18,31 +19,33 @@ export function QuoteSection({ className }: QuoteSectionProps) {
   if (!quote) return null;
 
   return (
-    <section className={`w-full py-16 md:py-24 bg-muted/30 ${className || ""}`}>
-      <Container className="max-w-3xl flex flex-col items-center text-center">
+    <section
+      className={`w-full py-14 sm:py-20 md:py-24 bg-linear-to-b from-background via-muted/20 to-background ${className || ""}`}
+    >
+      <Container className="max-w-2xl flex flex-col items-center text-center px-4">
         <motion.div
           variants={quoteVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="flex flex-col items-center gap-6"
+          viewport={{ once: true, margin: "-50px" }}
+          className="flex flex-col items-center gap-4 sm:gap-6 bg-card/60 backdrop-blur-sm p-6 sm:p-8 rounded-3xl border border-amber-500/20 shadow-xl shadow-black/5"
         >
-          {/* Subtle quotation mark icon */}
-          <svg
-            className="w-10 h-10 text-primary/40"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-          </svg>
+          {/* Golden Quote Icon */}
+          <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
+            <Quote className="w-5 h-5" />
+          </div>
 
-          <Text className="text-xl md:text-2xl italic leading-relaxed text-foreground font-light">
-            &quot;{quote.text}&quot;
+          <Text className="text-sm sm:text-base md:text-lg italic leading-relaxed text-foreground font-serif font-light max-w-lg">
+            &ldquo;{quote.text}&rdquo;
           </Text>
 
-          <Text size="sm" className="font-medium tracking-widest text-primary uppercase mt-4">
-            — {quote.author}
+          <div className="w-12 h-px bg-amber-500/30" />
+
+          <Text
+            size="sm"
+            className="font-semibold tracking-widest text-amber-600 dark:text-amber-400 uppercase text-[11px] sm:text-xs"
+          >
+            {quote.author}
           </Text>
         </motion.div>
       </Container>

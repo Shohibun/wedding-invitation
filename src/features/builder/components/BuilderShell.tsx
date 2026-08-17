@@ -38,7 +38,7 @@ export function BuilderShell({ invitation }: BuilderShellProps) {
         {/* Main Panel (Live Preview) */}
         <div
           className={`
-            flex-1 bg-surfaceMuted relative overflow-hidden flex items-center justify-center p-4 md:p-8
+            flex-1 bg-surfaceMuted relative overflow-hidden flex items-center justify-center p-2 sm:p-4 md:p-6
             transition-transform duration-300 ease-in-out
             ${!showPreviewOnMobile ? "translate-x-full absolute md:relative md:translate-x-0 w-full" : "translate-x-0 w-full"}
             h-full

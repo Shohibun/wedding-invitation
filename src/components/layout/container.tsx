@@ -6,7 +6,7 @@ export const Container = React.forwardRef<HTMLDivElement, React.HTMLAttributes<H
     return (
       <div
         ref={ref}
-        className={cn("container mx-auto px-4 md:px-8 max-w-7xl", className)}
+        className={cn("w-full mx-auto px-3.5 sm:px-6 max-w-5xl", className)}
         {...props}
       />
     );

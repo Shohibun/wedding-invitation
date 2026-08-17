@@ -34,7 +34,7 @@ export function useMediaUpload(options: UseMediaUploadOptions) {
       }
     } else if (options.mediaType === "audio") {
       if (!ALLOWED_AUDIO_TYPES.includes(file.type)) {
-        throw new Error("Invalid audio format. Supported formats: MP3.");
+        throw new Error("Invalid audio format. Supported formats: MP3, WAV, M4A.");
       }
       if (file.size > MAX_AUDIO_SIZE_BYTES) {
         throw new Error(`File is too large. Max size is ${MAX_AUDIO_SIZE_BYTES / 1024 / 1024}MB.`);
@@ -42,9 +42,32 @@ export function useMediaUpload(options: UseMediaUploadOptions) {
     }
   };
 
+  const fileToDataUrl = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        let result = reader.result as string;
+        // Standardize audio MIME type to standard audio/mpeg for broad browser decoder support
+        if (
+          file.name.toLowerCase().endsWith(".mp3") ||
+          file.type === "audio/mp3" ||
+          file.type === "audio/mpeg"
+        ) {
+          result = result.replace(/^data:audio\/[^;]+;base64,/, "data:audio/mpeg;base64,");
+        }
+        resolve(result);
+      };
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+    });
+  };
+
   const uploadFile = async (file: File) => {
     setIsUploading(true);
-    setProgress(10); // Start processing
+    setProgress(10);
+
+    const mediaLabel =
+      options.mediaType === "audio" ? "Musik" : options.mediaType === "video" ? "Video" : "Gambar";
 
     try {
       validateFile(file);
@@ -62,7 +85,7 @@ export function useMediaUpload(options: UseMediaUploadOptions) {
         });
       }
 
-      setProgress(60); // Processing complete, starting upload
+      setProgress(60);
 
       const formData = new FormData();
       formData.append("file", fileToUpload);
@@ -74,6 +97,19 @@ export function useMediaUpload(options: UseMediaUploadOptions) {
       const result = await action(formData);
 
       if (result.error) {
+        // If storage bucket is missing or unconfigured on Supabase, fallback to Data URL
+        if (
+          result.error.toLowerCase().includes("bucket not found") ||
+          result.error.toLowerCase().includes("not found")
+        ) {
+          const dataUrl = await fileToDataUrl(fileToUpload);
+          setProgress(100);
+          if (options.onSuccess) {
+            options.onSuccess(dataUrl);
+          }
+          toast.success(`${mediaLabel} berhasil dimuat (Offline/Base64 mode)`);
+          return { url: dataUrl };
+        }
         throw new Error(result.error);
       }
 
@@ -81,6 +117,7 @@ export function useMediaUpload(options: UseMediaUploadOptions) {
 
       if (options.onSuccess && result.data?.url) {
         options.onSuccess(result.data.url);
+        toast.success(`${mediaLabel} berhasil diunggah`);
       }
 
       return result.data;

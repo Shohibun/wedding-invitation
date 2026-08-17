@@ -1,5 +1,5 @@
-import * as React from "react";
 import { VariantPackage } from "../../../../../core/variants";
+import { HeroSection } from "../../section";
 
 export const classicHeroVariant: VariantPackage = {
   manifest: {
@@ -24,13 +24,5 @@ export const classicHeroVariant: VariantPackage = {
       },
     },
   },
-  component: () => (
-    <div className="w-full min-h-screen flex flex-col items-center justify-center bg-muted/20 border-b p-8">
-      <h1 className="text-4xl font-heading mb-4">Classic Hero Variant</h1>
-      <p className="text-muted-foreground text-center max-w-md">
-        This is a dynamically resolved variant component that replaces the default Hero section
-        entirely based on the configuration state.
-      </p>
-    </div>
-  ),
+  component: HeroSection,
 };

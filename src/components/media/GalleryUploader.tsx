@@ -19,13 +19,11 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useMediaUpload } from "@/features/media/hooks/useMediaUpload";
-import { useMediaDelete } from "@/features/media/hooks/useMediaDelete";
 import { MediaDropzone } from "./MediaDropzone";
 import { StorageBucket } from "@/lib/storage";
 import { Loader2, Trash2, GripVertical, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 
 interface GalleryItem {
   id: string; // The url acts as id for the form array
@@ -55,27 +53,34 @@ function SortableItem({ item, onDelete }: { item: GalleryItem; onDelete: (url: s
     <div
       ref={setNodeRef}
       style={style}
-      className={`relative group rounded-md overflow-hidden aspect-4/5 border ${isDragging ? "shadow-xl opacity-80" : "shadow-sm"}`}
+      className={`relative group rounded-xl overflow-hidden aspect-4/5 border border-border/80 ${isDragging ? "shadow-xl opacity-80" : "shadow-xs"}`}
     >
       <div
-        className="absolute top-2 left-2 z-20 opacity-0 group-hover:opacity-100 bg-background/80 backdrop-blur-sm p-1 rounded cursor-grab active:cursor-grabbing"
+        className="absolute top-1.5 left-1.5 z-20 opacity-0 group-hover:opacity-100 bg-background/80 backdrop-blur-sm p-1 rounded-md cursor-grab active:cursor-grabbing transition-opacity"
         {...attributes}
         {...listeners}
       >
-        <GripVertical className="w-4 h-4 text-text" />
+        <GripVertical className="w-3.5 h-3.5 text-text" />
       </div>
 
       <Button
         type="button"
         variant="destructive"
         size="icon"
-        className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 w-7 h-7"
+        className="absolute top-1.5 right-1.5 z-20 opacity-0 group-hover:opacity-100 w-6 h-6 rounded-md transition-opacity"
         onClick={() => onDelete(item.url)}
       >
-        <Trash2 className="w-4 h-4" />
+        <Trash2 className="w-3 h-3" />
       </Button>
 
-      <Image src={item.url} alt="Gallery item" fill className="object-cover" />
+      <Image
+        src={item.url}
+        alt="Gallery item"
+        fill
+        sizes="(max-width: 768px) 50vw, 33vw"
+        unoptimized={item.url.startsWith("data:")}
+        className="object-cover"
+      />
     </div>
   );
 }
@@ -124,7 +129,7 @@ export function GalleryUploader({
       if (result && result.url) {
         onChange([...items, { id: result.url, url: result.url }]);
       }
-    } catch (e) {
+    } catch {
       // Error handled by hook
     } finally {
       setUploads((prev) => prev.filter((u) => u.id !== tempId));
@@ -132,15 +137,13 @@ export function GalleryUploader({
   };
 
   const handleDelete = (url: string) => {
-    // Optionally trigger deleteMediaAction here if we know the asset ID.
-    // For now, removing from array.
     onChange(items.filter((item) => item.url !== url));
   };
 
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-4 ${className || ""}`}>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <SortableContext items={items.map((i) => i.id)} strategy={rectSortingStrategy}>
             {items.map((item) => (
               <SortableItem key={item.id} item={item} onDelete={handleDelete} />
@@ -151,10 +154,10 @@ export function GalleryUploader({
           {uploads.map((upload) => (
             <div
               key={upload.id}
-              className="relative rounded-md overflow-hidden aspect-4/5 border shadow-sm bg-surfaceMuted flex flex-col items-center justify-center p-4"
+              className="relative rounded-xl overflow-hidden aspect-4/5 border shadow-xs bg-surfaceMuted flex flex-col items-center justify-center p-3"
             >
-              <Loader2 className="w-6 h-6 animate-spin text-primary mb-2" />
-              <p className="text-xs text-textMuted">Uploading...</p>
+              <Loader2 className="w-5 h-5 animate-spin text-primary mb-1.5" />
+              <p className="text-[10px] text-textMuted">Mengunggah...</p>
             </div>
           ))}
 
@@ -162,11 +165,11 @@ export function GalleryUploader({
           <MediaDropzone
             onFileSelect={handleFileSelect}
             accept="image/jpeg, image/png, image/webp"
-            className="aspect-4/5 min-h-0 h-auto"
+            className="aspect-4/5 min-h-0 h-auto rounded-xl"
           >
-            <div className="flex flex-col items-center justify-center p-4 text-center text-textMuted">
-              <ImageIcon className="w-6 h-6 mb-2" />
-              <p className="text-xs font-medium text-text">Add Image</p>
+            <div className="flex flex-col items-center justify-center p-3 text-center text-textMuted">
+              <ImageIcon className="w-5 h-5 mb-1.5 text-primary/70" />
+              <p className="text-xs font-medium text-text">Tambah Foto</p>
             </div>
           </MediaDropzone>
         </div>

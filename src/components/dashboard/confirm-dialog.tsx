@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 export function ConfirmDialog({
   trigger,
@@ -21,6 +22,7 @@ export function ConfirmDialog({
   confirmText = "Continue",
   cancelText = "Cancel",
   destructive = false,
+  nativeButton,
 }: {
   trigger: React.ReactElement;
   title: string;
@@ -29,10 +31,19 @@ export function ConfirmDialog({
   confirmText?: string;
   cancelText?: string;
   destructive?: boolean;
+  nativeButton?: boolean;
 }) {
+  const triggerType = trigger?.type;
+  const isNativeBtn =
+    nativeButton !== undefined
+      ? nativeButton
+      : typeof triggerType === "string"
+        ? triggerType === "button"
+        : triggerType === Button;
+
   return (
     <AlertDialog>
-      <AlertDialogTrigger nativeButton={false} render={trigger} />
+      <AlertDialogTrigger nativeButton={isNativeBtn} render={trigger} />
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>

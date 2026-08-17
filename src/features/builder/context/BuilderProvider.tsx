@@ -1,8 +1,39 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { useAutosave } from "../hooks/useAutosave";
+import { darsanaDefaultData } from "@/templates/darsana/config";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function deepMerge(target: Record<string, any>, ...sources: any[]): Record<string, any> {
+  if (!sources.length) return target;
+  const source = sources.shift();
+
+  if (target && source && typeof target === "object" && typeof source === "object") {
+    for (const key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        const sourceVal = source[key];
+        const targetVal = target[key];
+
+        if (
+          sourceVal &&
+          typeof sourceVal === "object" &&
+          !Array.isArray(sourceVal) &&
+          targetVal &&
+          typeof targetVal === "object" &&
+          !Array.isArray(targetVal)
+        ) {
+          target[key] = deepMerge({ ...targetVal }, sourceVal);
+        } else if (sourceVal !== undefined && sourceVal !== null) {
+          target[key] = sourceVal;
+        }
+      }
+    }
+  }
+
+  return deepMerge(target, ...sources);
+}
 
 interface BuilderContextValue {
   invitationId: string;
@@ -37,13 +68,34 @@ export function BuilderProvider({ initialData, invitationId, children }: Builder
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
 
-  // We use a completely generic record since Draft payload can be deeply nested
-  // and structure depends on the selected template.
+  // Deterministic server/client base data to prevent hydration mismatches
+  const baseData = useMemo(() => {
+    return deepMerge({}, darsanaDefaultData, initialData);
+  }, [initialData]);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const methods = useForm<Record<string, any>>({
-    defaultValues: initialData,
+    defaultValues: baseData,
     mode: "onChange",
   });
+
+  // Restore client-side local storage backup into react-hook-form on mount
+  useEffect(() => {
+    try {
+      const backupStr = localStorage.getItem(`draft_backup_${invitationId}`);
+      if (backupStr) {
+        const backup = JSON.parse(backupStr);
+        if (backup && Object.keys(backup).length > 0) {
+          const merged = deepMerge({}, darsanaDefaultData, initialData, backup);
+          methods.reset(merged, {
+            keepDirtyValues: true,
+          });
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, [invitationId, initialData, methods]);
 
   const triggerSaveInternal = useAutosave(methods, invitationId, {
     setIsSaving,

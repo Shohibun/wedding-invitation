@@ -37,21 +37,31 @@ const slugify = (text: string): string => {
     .replace(/-+$/, ""); // Trim - from end of text
 };
 
+const formatTitleFromSlug = (slug?: string): string => {
+  if (!slug) return "";
+  return slug
+    .split("-")
+    .map((word) => (word === "and" ? "&" : word.charAt(0).toUpperCase() + word.slice(1)))
+    .join(" ");
+};
+
 export function InvitationForm({ initialData }: { initialData?: Invitation }) {
   const router = useRouter();
   const [isSaving, setIsSaving] = React.useState(false);
   const [isSlugCustomized, setIsSlugCustomized] = React.useState(!!initialData?.slug);
 
+  const initialTitle = initialData?.title || formatTitleFromSlug(initialData?.slug);
+
   const form = useForm<InvitationInput>({
     resolver: zodResolver(invitationSchema),
     defaultValues: initialData
       ? {
-          title: initialData.title || "",
-          slug: initialData.slug,
-          theme: initialData.theme,
-          music_auto_play: initialData.music_auto_play,
-          locale: initialData.locale,
-          status: initialData.status,
+          title: initialTitle,
+          slug: initialData.slug || "",
+          theme: initialData.theme || "darsana",
+          music_auto_play: initialData.music_auto_play ?? true,
+          locale: initialData.locale || "id-ID",
+          status: initialData.status || "draft",
         }
       : {
           title: "",
@@ -103,7 +113,7 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card border border-border/80 rounded-2xl p-4 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card border border-border/80 rounded-2xl p-4 shadow-xs">
         <Button
           type="button"
           variant="outline"
@@ -123,7 +133,7 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
           <Button
             type="submit"
             disabled={isSaving || !isDirty}
-            className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 shadow-md transition-all"
+            className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs transition-all"
           >
             {isSaving ? (
               <>
@@ -143,13 +153,13 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
       <SectionCard
         title="Basic Information"
         description="Set the primary URL and theme template for this invitation."
-        className="border border-border/80 shadow-sm"
+        className="border border-border/80 shadow-xs"
       >
         <div className="grid gap-5 sm:grid-cols-2">
           <Field className="sm:col-span-2">
             <FieldLabel className="text-foreground font-semibold">Title</FieldLabel>
             <Input
-              placeholder="Romeo & Juliet Wedding"
+              placeholder="Shohibun & Jiwon Wedding"
               {...form.register("title")}
               onChange={handleTitleChange}
               className="bg-background border-input focus:border-primary"
@@ -163,13 +173,13 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
           <Field>
             <FieldLabel className="text-foreground font-semibold">Slug (URL Path)</FieldLabel>
             <Input
-              placeholder="romeo-and-juliet-wedding"
+              placeholder="shohibun-and-jiwon"
               {...form.register("slug")}
               onChange={handleSlugChange}
               className="bg-background border-input focus:border-primary font-mono text-sm"
             />
             <FieldDescription>
-              Unique URL path (e.g. /invitation/romeo-and-juliet-wedding).
+              Unique URL path (e.g. /invitation/shohibun-and-jiwon).
             </FieldDescription>
             {form.formState.errors.slug && (
               <FieldError>{form.formState.errors.slug.message}</FieldError>
@@ -184,7 +194,7 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
                 <FieldLabel className="text-foreground font-semibold flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-blue-500" /> Theme Template
                 </FieldLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
+                <Select onValueChange={field.onChange} value={field.value || "darsana"}>
                   <SelectTrigger className="bg-background border-input">
                     <SelectValue placeholder="Select a theme" />
                   </SelectTrigger>
@@ -208,7 +218,7 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
       <SectionCard
         title="Publishing Status"
         description="Control the lifecycle and visibility of this invitation."
-        className="border border-border/80 shadow-sm"
+        className="border border-border/80 shadow-xs"
       >
         <div className="grid gap-5 sm:grid-cols-2">
           <Controller
@@ -219,7 +229,7 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
                 <FieldLabel className="text-foreground font-semibold flex items-center gap-1.5">
                   <Shield className="w-4 h-4 text-emerald-500" /> Status
                 </FieldLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
+                <Select onValueChange={field.onChange} value={field.value || "draft"}>
                   <SelectTrigger className="bg-background border-input">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
@@ -241,7 +251,7 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
       <SectionCard
         title="Configuration Settings"
         description="Language and media playback settings."
-        className="border border-border/80 shadow-sm"
+        className="border border-border/80 shadow-xs"
       >
         <div className="grid gap-5 sm:grid-cols-2">
           <Controller
@@ -252,7 +262,7 @@ export function InvitationForm({ initialData }: { initialData?: Invitation }) {
                 <FieldLabel className="text-foreground font-semibold flex items-center gap-1.5">
                   <Globe className="w-4 h-4 text-cyan-500" /> Locale (Language)
                 </FieldLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
+                <Select onValueChange={field.onChange} value={field.value || "id-ID"}>
                   <SelectTrigger className="bg-background border-input">
                     <SelectValue placeholder="Select locale" />
                   </SelectTrigger>

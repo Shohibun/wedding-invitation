@@ -1,21 +1,20 @@
 "use client";
 
 import React from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { GalleryUploader } from "@/components/media/GalleryUploader";
 import { useBuilderContext } from "../context/BuilderProvider";
 
 export function SectionGallery() {
-  const { setValue, watch } = useFormContext();
+  const { control, setValue } = useFormContext();
   const { invitationId } = useBuilderContext();
 
-  // We don't necessarily need useFieldArray if we just store the array in form state
-  // But using it keeps consistency if we want to manipulate it via standard form methods.
-  // For Dnd, it's easier to just watch the entire array and replace it.
-  const gallery = watch("gallery") || [];
+  // Reactive subscription via useWatch so new images trigger instant re-renders
+  const rawGallery = useWatch({ control, name: "gallery" });
+  const gallery = Array.isArray(rawGallery) ? rawGallery : [];
 
   const handleGalleryChange = (newGallery: { url: string }[]) => {
-    setValue("gallery", newGallery, { shouldDirty: true });
+    setValue("gallery", newGallery, { shouldDirty: true, shouldTouch: true });
   };
 
   // Convert for GalleryUploader
@@ -27,8 +26,11 @@ export function SectionGallery() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="text-sm text-textMuted bg-primary/10 p-3 rounded-md border border-primary/20">
-        <p>Drag and drop images to reorder them. Changes will be saved automatically.</p>
+      <div className="text-xs text-textMuted bg-primary/10 p-3 rounded-md border border-primary/20">
+        <p>
+          Tarik dan lepas gambar untuk mengatur urutan. Foto akan langsung tersimpan secara
+          otomatis.
+        </p>
       </div>
 
       <GalleryUploader
