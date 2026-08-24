@@ -2,26 +2,50 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { Story } from "./types";
 
 export class StoryRepository {
-  constructor(private readonly supabase: SupabaseClient) {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(private readonly supabase: SupabaseClient<any>) {}
 
   async getById(id: string): Promise<Story | null> {
-    const { data, error } = await this.supabase.from("stories").select("*").eq("id", id).single();
+    try {
+      const { data, error } = await this.supabase.from("stories").select("*").eq("id", id).single();
+      if (!error && data) return data as Story;
 
-    if (error) {
-      if (error.code === "PGRST116") return null;
-      throw new Error(`DB Error: ${error.message}`);
+      const { data: storyData } = await this.supabase
+        .from("love_stories")
+        .select("*")
+        .eq("id", id)
+        .single();
+      return (storyData || null) as Story | null;
+    } catch {
+      return null;
     }
-    return data as Story;
   }
 
   async getByInvitationId(invitationId: string): Promise<Story[]> {
-    const { data, error } = await this.supabase
-      .from("stories")
-      .select("*")
-      .eq("invitation_id", invitationId);
+    try {
+      const { data, error } = await this.supabase
+        .from("stories")
+        .select("*")
+        .eq("invitation_id", invitationId);
 
-    if (error) throw new Error(`DB Error: ${error.message}`);
-    return data as Story[];
+      if (!error && data && data.length > 0) {
+        return data as Story[];
+      }
+
+      // Fallback to legacy 'love_stories' table
+      const { data: storiesData, error: storiesError } = await this.supabase
+        .from("love_stories")
+        .select("*")
+        .eq("invitation_id", invitationId);
+
+      if (!storiesError && storiesData) {
+        return storiesData as Story[];
+      }
+
+      return [];
+    } catch {
+      return [];
+    }
   }
 
   async create(payload: Partial<Story>): Promise<Story> {

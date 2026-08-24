@@ -2,26 +2,50 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { Gift } from "./types";
 
 export class GiftRepository {
-  constructor(private readonly supabase: SupabaseClient) {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(private readonly supabase: SupabaseClient<any>) {}
 
   async getById(id: string): Promise<Gift | null> {
-    const { data, error } = await this.supabase.from("gifts").select("*").eq("id", id).single();
+    try {
+      const { data, error } = await this.supabase.from("gifts").select("*").eq("id", id).single();
+      if (!error && data) return data as Gift;
 
-    if (error) {
-      if (error.code === "PGRST116") return null;
-      throw new Error(`DB Error: ${error.message}`);
+      const { data: giftData } = await this.supabase
+        .from("gift_accounts")
+        .select("*")
+        .eq("id", id)
+        .single();
+      return (giftData || null) as Gift | null;
+    } catch {
+      return null;
     }
-    return data as Gift;
   }
 
   async getByInvitationId(invitationId: string): Promise<Gift[]> {
-    const { data, error } = await this.supabase
-      .from("gifts")
-      .select("*")
-      .eq("invitation_id", invitationId);
+    try {
+      const { data, error } = await this.supabase
+        .from("gifts")
+        .select("*")
+        .eq("invitation_id", invitationId);
 
-    if (error) throw new Error(`DB Error: ${error.message}`);
-    return data as Gift[];
+      if (!error && data && data.length > 0) {
+        return data as Gift[];
+      }
+
+      // Fallback to legacy 'gift_accounts' table
+      const { data: accountsData, error: accountsError } = await this.supabase
+        .from("gift_accounts")
+        .select("*")
+        .eq("invitation_id", invitationId);
+
+      if (!accountsError && accountsData) {
+        return accountsData as Gift[];
+      }
+
+      return [];
+    } catch {
+      return [];
+    }
   }
 
   async create(payload: Partial<Gift>): Promise<Gift> {

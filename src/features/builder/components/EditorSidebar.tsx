@@ -17,13 +17,13 @@ import { SectionSettings } from "../sections/SectionSettings";
 
 export function EditorSidebar() {
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden">
+    <div className="flex flex-col h-full w-full overflow-hidden" suppressHydrationWarning>
       <div className="p-4 border-b shrink-0 bg-surface">
         <h2 className="font-semibold text-text">Invitation Editor</h2>
         <p className="text-xs text-textMuted">Modify sections and customize design</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto min-h-0 p-4">
+      <div className="flex-1 overflow-y-auto min-h-0 p-4" suppressHydrationWarning>
         <Accordion className="w-full" defaultValue={["cover"]}>
           <AccordionItem value="cover">
             <AccordionTrigger>Cover & Background Music</AccordionTrigger>

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { InvitationService } from "@/features/invitation";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import Link from "next/link";
+import { Plus } from "lucide-react";
 import { InvitationClientList } from "./client-list";
 
 export const revalidate = 0; // Ensure data is fresh in admin
@@ -21,9 +22,16 @@ export default async function InvitationsPage() {
 
   return (
     <PageContainer>
-      <PageHeader heading="Invitations" text="Manage all wedding invitations in the system.">
-        <Button nativeButton={false} render={<Link href="/invitations/create" />}>
-          Create New
+      <PageHeader
+        heading="Wedding Invitations"
+        text="Kelola seluruh daftar proyek undangan pernikahan, publikasi, dan pengaturan buku tamu."
+      >
+        <Button
+          nativeButton={false}
+          render={<Link href="/invitations/create" />}
+          className="cursor-pointer"
+        >
+          <Plus className="w-4 h-4 mr-1.5" /> Buat Undangan Baru
         </Button>
       </PageHeader>
 

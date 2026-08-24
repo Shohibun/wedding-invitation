@@ -14,7 +14,7 @@ export function BuilderShell({ invitation }: BuilderShellProps) {
   const [showPreviewOnMobile, setShowPreviewOnMobile] = useState(false);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-background">
+    <div className="flex flex-col h-screen overflow-hidden bg-background" suppressHydrationWarning>
       {/* Top Toolbar */}
       <BuilderToolbar
         invitation={invitation}
@@ -22,7 +22,7 @@ export function BuilderShell({ invitation }: BuilderShellProps) {
         showPreviewOnMobile={showPreviewOnMobile}
       />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden" suppressHydrationWarning>
         {/* Sidebar (Editor) */}
         <div
           className={`
@@ -31,6 +31,7 @@ export function BuilderShell({ invitation }: BuilderShellProps) {
             ${showPreviewOnMobile ? "-translate-x-full absolute md:relative md:translate-x-0" : "translate-x-0"}
             z-10 h-full
           `}
+          suppressHydrationWarning
         >
           <EditorSidebar />
         </div>
@@ -43,6 +44,7 @@ export function BuilderShell({ invitation }: BuilderShellProps) {
             ${!showPreviewOnMobile ? "translate-x-full absolute md:relative md:translate-x-0 w-full" : "translate-x-0 w-full"}
             h-full
           `}
+          suppressHydrationWarning
         >
           <PreviewFrame />
         </div>

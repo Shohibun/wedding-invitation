@@ -9,4 +9,6 @@ export interface InvitationWithDetails extends Invitation {
   gallery?: { url: string }[];
   persons?: { name: string; role: string }[];
   gallery_images?: { url: string }[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  draft_payload?: Record<string, any>;
 }

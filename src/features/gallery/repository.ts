@@ -2,26 +2,50 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { Gallery } from "./types";
 
 export class GalleryRepository {
-  constructor(private readonly supabase: SupabaseClient) {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(private readonly supabase: SupabaseClient<any>) {}
 
   async getById(id: string): Promise<Gallery | null> {
-    const { data, error } = await this.supabase.from("gallery").select("*").eq("id", id).single();
+    try {
+      const { data, error } = await this.supabase.from("gallery").select("*").eq("id", id).single();
+      if (!error && data) return data as Gallery;
 
-    if (error) {
-      if (error.code === "PGRST116") return null;
-      throw new Error(`DB Error: ${error.message}`);
+      const { data: imgData } = await this.supabase
+        .from("gallery_images")
+        .select("*")
+        .eq("id", id)
+        .single();
+      return (imgData || null) as Gallery | null;
+    } catch {
+      return null;
     }
-    return data as Gallery;
   }
 
   async getByInvitationId(invitationId: string): Promise<Gallery[]> {
-    const { data, error } = await this.supabase
-      .from("gallery")
-      .select("*")
-      .eq("invitation_id", invitationId);
+    try {
+      const { data, error } = await this.supabase
+        .from("gallery")
+        .select("*")
+        .eq("invitation_id", invitationId);
 
-    if (error) throw new Error(`DB Error: ${error.message}`);
-    return data as Gallery[];
+      if (!error && data && data.length > 0) {
+        return data as Gallery[];
+      }
+
+      // Fallback to legacy 'gallery_images' table
+      const { data: imgData, error: imgError } = await this.supabase
+        .from("gallery_images")
+        .select("*")
+        .eq("invitation_id", invitationId);
+
+      if (!imgError && imgData) {
+        return imgData as Gallery[];
+      }
+
+      return [];
+    } catch {
+      return [];
+    }
   }
 
   async create(payload: Partial<Gallery>): Promise<Gallery> {
