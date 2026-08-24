@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-let supabaseHostname = "";
+let supabaseHostname = "zwmqlzblbqkeuymtacew.supabase.co";
 try {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://zwmqlzblbqkeuymtacew.supabase.co";
   supabaseHostname = new URL(url).hostname;
@@ -63,6 +63,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: supabaseHostname,
+      },
+      {
+        protocol: "https",
+        hostname: "**.supabase.co",
       },
     ],
   },
