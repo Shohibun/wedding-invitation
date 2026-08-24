@@ -1,8 +1,26 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wedding Invitation CMS (MVP)
+
+A highly optimized, fast, and simple Content Management System (CMS) exclusively built for managing digital wedding invitations.
+
+## Overview
+This platform empowers a single Admin user to:
+- Authenticate securely via Supabase.
+- Create and edit dynamic digital wedding invitations.
+- Manage comprehensive Guest lists (with Excel/CSV Export & Import).
+- Monitor live RSVP data tracking.
+- Publish public-facing invitations utilizing an internal Template Engine.
+
+*(Note: The enterprise multi-tenant SaaS features like RBAC, Workspaces, Analytics, Notification queues, and historical Versioning have been entirely stripped away to construct a streamlined, single-user MVP architecture).*
 
 ## Getting Started
 
-First, run the development server:
+First, ensure you have configured your environment by copying `.env.example` to `.env.local`:
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
@@ -16,21 +34,13 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Historical Documentation
+> [!WARNING]
+> The architectural documents found in the `/docs` directory refer to the legacy **Enterprise SaaS Architecture**. They are preserved strictly for historical milestone reviews and sprint documentation. **They do not reflect the current MVP Architecture** and should be considered **DEPRECATED**.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tech Stack
+- [Next.js (App Router)](https://nextjs.org)
+- [Supabase Auth](https://supabase.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [React Hook Form](https://react-hook-form.com/) & [Zod](https://zod.dev/)
+- [Shadcn UI](https://ui.shadcn.com/)

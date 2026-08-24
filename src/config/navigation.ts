@@ -6,43 +6,35 @@ export interface NavItem {
 }
 
 export const navigationConfig = {
-  // Navigasi untuk halaman utama (Landing Page SaaS)
+  // Navigasi untuk halaman utama (Landing Page Admin)
   mainNav: [
     {
       title: "Home",
       href: "/",
     },
     {
-      title: "Features",
-      href: "/#features",
-    },
-    {
-      title: "Themes",
-      href: "/#themes",
-    },
-    {
-      title: "Pricing",
-      href: "/#pricing",
-    },
-  ] as NavItem[],
-
-  // Navigasi untuk Dashboard Pengguna (Pengantin)
-  dashboardNav: [
-    {
-      title: "Overview",
+      title: "Dashboard",
       href: "/dashboard",
     },
     {
-      title: "Desain & Tema",
-      href: "/dashboard/themes",
+      title: "Undangan",
+      href: "/invitations",
+    },
+  ] as NavItem[],
+
+  // Navigasi untuk Admin Dashboard
+  dashboardNav: [
+    {
+      title: "Dashboard",
+      href: "/dashboard",
     },
     {
-      title: "Buku Tamu",
-      href: "/dashboard/guests",
+      title: "Undangan Saya",
+      href: "/invitations",
     },
     {
       title: "Pengaturan",
-      href: "/dashboard/settings",
+      href: "/settings",
     },
   ] as NavItem[],
 };

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Metadata } from "next";
 import {
   Geist,
@@ -10,8 +11,9 @@ import {
   Lato,
 } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/providers/theme-provider";
-import { WeddingThemeProvider } from "@/providers/wedding-theme-provider";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { Providers } from "@/providers";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -35,25 +37,67 @@ const greatVibes = Great_Vibes({
 });
 
 export const metadata: Metadata = {
-  title: "Digital Wedding Invitation SaaS",
-  description: "Create your beautiful wedding invitation",
+  title: "Darsana - Digital Wedding Invitation CMS",
+  description: "Create your beautiful, elegant, and modern digital wedding invitation in minutes.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  openGraph: {
+    title: "Darsana - Digital Wedding Invitation",
+    description: "Create your beautiful wedding invitation",
+    url: "/",
+    siteName: "Darsana",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Darsana Digital Wedding Invitation",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Darsana - Digital Wedding Invitation",
+    description: "Create your beautiful wedding invitation",
+    images: ["/og-image.jpg"],
+  },
+  alternates: {
+    canonical: "/",
+  },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+      },
+    }
+  );
+
+  const session = null; // Unused for now, removed from Providers if needed.
+  const user = null;
+
   return (
     <html
       lang="en"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${lato.variable} ${inter.variable} ${cinzel.variable} ${montserrat.variable} ${greatVibes.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-body">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <WeddingThemeProvider defaultTheme="elegant">{children}</WeddingThemeProvider>
-        </ThemeProvider>
+      <body className="min-h-full flex flex-col font-body" suppressHydrationWarning>
+        <Providers session={session} user={user}>
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { usePathname } from "next/navigation";
 
 export type WeddingTheme = "elegant" | "minimal" | "luxury" | "floral";
 
@@ -19,11 +20,18 @@ export function WeddingThemeProvider({
   defaultTheme?: WeddingTheme;
 }) {
   const [theme, setTheme] = React.useState<WeddingTheme>(defaultTheme);
+  const pathname = usePathname();
 
   React.useEffect(() => {
     const root = window.document.documentElement;
-    root.setAttribute("data-theme", theme);
-  }, [theme]);
+    // Only set data-theme attribute on public invitation routes (/invitation/slug or /g/slug)
+    // Avoid matching /invitations (admin dashboard routes)
+    if (pathname?.startsWith("/invitation/") || pathname?.startsWith("/g/")) {
+      root.setAttribute("data-theme", theme);
+    } else {
+      root.removeAttribute("data-theme");
+    }
+  }, [theme, pathname]);
 
   return (
     <WeddingThemeContext.Provider value={{ theme, setTheme }}>
