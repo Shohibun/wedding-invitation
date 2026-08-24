@@ -8,16 +8,22 @@ export const updateSession = async (request: NextRequest) => {
     },
   });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  // Fail-safe fallback if environment variables are not yet configured on host
+  if (!supabaseUrl || !supabaseKey) {
+    return supabaseResponse;
+  }
+
+  try {
+    const supabase = createServerClient(supabaseUrl, supabaseKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value));
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           supabaseResponse = NextResponse.next({
             request,
           });
@@ -26,39 +32,41 @@ export const updateSession = async (request: NextRequest) => {
           );
         },
       },
+    });
+
+    // refreshing the auth token
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const url = request.nextUrl.clone();
+    const path = url.pathname;
+
+    // Protect Admin/Dashboard Routes
+    const isProtected =
+      path.startsWith("/dashboard") ||
+      path.startsWith("/invitations") ||
+      path.startsWith("/profile") ||
+      path.startsWith("/settings");
+
+    if (isProtected && !user) {
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
     }
-  );
 
-  // refreshing the auth token
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    // Protect Auth Routes
+    const isAuthRoute =
+      path === "/login" ||
+      path === "/register" ||
+      path === "/forgot-password" ||
+      path === "/reset-password";
 
-  const url = request.nextUrl.clone();
-  const path = url.pathname;
-
-  // Protect Admin/Dashboard Routes
-  const isProtected =
-    path.startsWith("/dashboard") ||
-    path.startsWith("/invitations") ||
-    path.startsWith("/profile") ||
-    path.startsWith("/settings");
-
-  if (isProtected && !user) {
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
-  }
-
-  // Protect Auth Routes
-  const isAuthRoute =
-    path === "/login" ||
-    path === "/register" ||
-    path === "/forgot-password" ||
-    path === "/reset-password";
-
-  if (isAuthRoute && user) {
-    url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+    if (isAuthRoute && user) {
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
+  } catch (error) {
+    console.error("Middleware session update error:", error);
   }
 
   return supabaseResponse;

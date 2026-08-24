@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Metadata } from "next";
 import {
   Geist,
@@ -11,8 +10,6 @@ import {
   Lato,
 } from "next/font/google";
 import "./globals.css";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import { Providers } from "@/providers";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -39,7 +36,9 @@ const greatVibes = Great_Vibes({
 export const metadata: Metadata = {
   title: "Darsana - Digital Wedding Invitation CMS",
   description: "Create your beautiful, elegant, and modern digital wedding invitation in minutes.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://wedding-invitation-brown-two-54.vercel.app"
+  ),
   openGraph: {
     title: "Darsana - Digital Wedding Invitation",
     description: "Create your beautiful wedding invitation",
@@ -53,7 +52,7 @@ export const metadata: Metadata = {
         alt: "Darsana Digital Wedding Invitation",
       },
     ],
-    locale: "en_US",
+    locale: "id_ID",
     type: "website",
   },
   twitter: {
@@ -67,35 +66,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-      },
-    }
-  );
-
-  const session = null; // Unused for now, removed from Providers if needed.
-  const user = null;
-
   return (
     <html
-      lang="en"
+      lang="id"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${lato.variable} ${inter.variable} ${cinzel.variable} ${montserrat.variable} ${greatVibes.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-body" suppressHydrationWarning>
-        <Providers session={session} user={user}>
+        <Providers session={null} user={null}>
           {children}
         </Providers>
       </body>
