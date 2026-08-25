@@ -6,9 +6,6 @@ import {
   MAX_AUDIO_SIZE_BYTES,
 } from "@/lib/storage/validation";
 
-// Helper to validate File objects on client/server actions
-const isBrowser = typeof window !== "undefined";
-
 const ASSET_MEDIA_TYPES = ["image", "audio", "video", "qr"] as const;
 
 export const uploadMediaSchema = z.object({
@@ -18,21 +15,26 @@ export const uploadMediaSchema = z.object({
   path: z.string().optional(),
   file: z
     .custom<File>((val) => {
-      if (isBrowser) return val instanceof File;
+      if (typeof File !== "undefined" && val instanceof File) return true;
       return (
-        val &&
-        typeof (val as { stream?: unknown }).stream === "function" &&
+        Boolean(val) &&
+        typeof (val as { arrayBuffer?: unknown }).arrayBuffer === "function" &&
         typeof (val as { size?: unknown }).size === "number"
       );
     }, "Invalid file type")
     .superRefine((file, ctx) => {
-      const isImage = ALLOWED_IMAGE_TYPES.includes(file.type);
-      const isAudio = ALLOWED_AUDIO_TYPES.includes(file.type);
+      const fileName = file.name || "";
+      const isAudioByExt = /\.(mp3|wav|m4a|aac|ogg|webm)$/i.test(fileName);
+      const isImageByExt = /\.(png|jpe?g|webp|gif|svg)$/i.test(fileName);
+
+      const isImage = ALLOWED_IMAGE_TYPES.includes(file.type) || isImageByExt;
+      const isAudio = ALLOWED_AUDIO_TYPES.includes(file.type) || isAudioByExt;
 
       if (!isImage && !isAudio) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Unsupported file format",
+          message:
+            "Unsupported file format. Please upload JPG, PNG, WebP for images or MP3, WAV, M4A for audio.",
         });
         return;
       }

@@ -44,7 +44,7 @@ export function PublicInvitationView({ initialData, invitationId }: PublicInvita
 
   const allRegistrySections = Object.keys(darsanaSectionRegistry);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rawForm: any = localBackup || initialData || {};
+  const rawForm: any = initialData || localBackup || {};
 
   const hiddenSections = rawForm?.sections?.hidden || [];
   const userEnabled = rawForm?.sections?.enabled || [];

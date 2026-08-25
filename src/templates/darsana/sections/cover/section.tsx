@@ -201,10 +201,13 @@ export function CoverSection({ className }: CoverSectionProps) {
                 scale: 1.06,
                 transition: { duration: 0.5, ease: "easeOut" },
               }}
-              className="absolute inset-0 z-30 flex flex-col justify-between items-center text-center p-3 sm:p-4 h-full w-full"
+              className="absolute inset-0 z-30 flex flex-col justify-between items-center text-center px-4 pt-10 pb-8 sm:pb-12 h-full w-full pointer-events-none"
+              style={{
+                paddingBottom: "max(2.5rem, calc(1.5rem + env(safe-area-inset-bottom, 0px)))",
+              }}
             >
               {/* Top Header Block (Positioned below the notch) */}
-              <div className="pt-6 sm:pt-8 flex flex-col items-center gap-1 px-2 max-w-65 mx-auto">
+              <div className="pt-2 sm:pt-4 flex flex-col items-center gap-1.5 px-3 max-w-xs mx-auto pointer-events-auto">
                 <Text
                   size="sm"
                   className="uppercase tracking-[0.25em] text-amber-300/90 text-[10px] sm:text-xs font-medium"
@@ -213,32 +216,32 @@ export function CoverSection({ className }: CoverSectionProps) {
                 </Text>
                 <Heading
                   level={1}
-                  className="text-white text-xl sm:text-2xl md:text-3xl font-serif font-light tracking-wide mt-0.5 leading-tight"
+                  className="text-white text-2xl sm:text-3xl md:text-4xl font-serif font-light tracking-wide mt-0.5 leading-tight"
                 >
                   {couple?.groom?.nickname || "Groom"} & {couple?.bride?.nickname || "Bride"}
                 </Heading>
                 {firstEventDate && (
-                  <Text className="text-[10px] sm:text-xs font-light tracking-widest text-white/80 mt-0.5">
+                  <Text className="text-[11px] sm:text-xs font-light tracking-widest text-white/80 mt-0.5">
                     {formatDate(firstEventDate)}
                   </Text>
                 )}
               </div>
 
               {/* Bottom Glassmorphic Frosted Guest Card */}
-              <div className="w-full max-w-65 sm:max-w-70 mb-2 sm:mb-3 bg-black/60 backdrop-blur-md border border-white/15 rounded-2xl p-3 sm:p-3.5 shadow-2xl flex flex-col items-center gap-2">
-                <div className="flex flex-col items-center gap-0.5">
-                  <Text size="sm" className="text-white/70 text-[10px] sm:text-xs font-light">
+              <div className="w-full max-w-xs sm:max-w-sm mb-4 sm:mb-6 bg-black/70 backdrop-blur-lg border border-white/20 rounded-2xl p-4 sm:p-5 shadow-2xl flex flex-col items-center gap-3 pointer-events-auto">
+                <div className="flex flex-col items-center gap-1">
+                  <Text size="sm" className="text-white/80 text-[11px] sm:text-xs font-light">
                     {coverGreeting}
                   </Text>
                   <Heading
                     level={4}
-                    className="font-semibold text-white text-xs sm:text-sm md:text-base tracking-wide"
+                    className="font-semibold text-white text-sm sm:text-base md:text-lg tracking-wide"
                   >
                     {guestName}
                   </Heading>
                   <Text
                     size="sm"
-                    className="text-white/60 text-[9px] sm:text-[10px] italic leading-tight text-center mt-0.5"
+                    className="text-white/60 text-[10px] sm:text-[11px] italic leading-tight text-center mt-0.5"
                   >
                     Mohon maaf apabila ada kesalahan penulisan nama atau gelar.
                   </Text>
@@ -246,10 +249,10 @@ export function CoverSection({ className }: CoverSectionProps) {
 
                 <Button
                   size="default"
-                  className="rounded-full bg-linear-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs font-medium shadow-xl gap-1.5 px-4 py-2 transition-transform active:scale-95 border border-white/20 mt-0.5"
+                  className="w-full sm:w-auto rounded-full bg-linear-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs sm:text-sm font-medium shadow-xl gap-2 px-6 py-2.5 transition-transform active:scale-95 border border-white/20 mt-1 cursor-pointer"
                   onClick={handleOpenInvitation}
                 >
-                  <MailOpen className="w-3.5 h-3.5 animate-bounce" />
+                  <MailOpen className="w-4 h-4 animate-bounce" />
                   <span>{buttonText}</span>
                 </Button>
               </div>
@@ -262,7 +265,7 @@ export function CoverSection({ className }: CoverSectionProps) {
       {isOpen && musicUrl && (
         <button
           onClick={handleToggleMusic}
-          className="absolute bottom-3 left-3 z-40 bg-black/70 hover:bg-black/90 text-white text-xs p-2.5 rounded-full backdrop-blur-md border border-white/20 flex items-center justify-center shadow-lg transition-all"
+          className="fixed sm:absolute bottom-6 sm:bottom-4 left-4 z-40 bg-black/75 hover:bg-black/90 text-white text-xs p-3 rounded-full backdrop-blur-md border border-white/25 flex items-center justify-center shadow-2xl transition-all active:scale-95"
           title={isPlayingMusic ? "Jeda Musik Latar" : "Putar Musik Latar"}
         >
           {isPlayingMusic ? (
@@ -283,11 +286,11 @@ export function CoverSection({ className }: CoverSectionProps) {
               setIsPlayingMusic(false);
             }
           }}
-          className="absolute bottom-3 right-3 z-40 bg-black/60 hover:bg-black/80 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-md border border-white/20 flex items-center gap-1.5 shadow-lg transition-all"
+          className="fixed sm:absolute bottom-6 sm:bottom-4 right-4 z-40 bg-black/70 hover:bg-black/85 text-white text-xs px-3.5 py-2 rounded-full backdrop-blur-md border border-white/25 flex items-center gap-1.5 shadow-2xl transition-all active:scale-95"
           title="Tutup kembali sampul"
         >
-          <RotateCcw className="w-3 h-3" />
-          <span>Sampul Depan</span>
+          <RotateCcw className="w-3.5 h-3.5" />
+          <span>Sampul</span>
         </button>
       )}
     </>

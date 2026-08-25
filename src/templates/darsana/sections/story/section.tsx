@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { StorySectionProps } from "./types";
 import { useTemplateData } from "@/templates/core/hooks";
@@ -10,7 +11,7 @@ import { Heading } from "@/components/typography/heading";
 import { Text } from "@/components/typography/text";
 import { storyVariants, itemVariants } from "./animations";
 import { formatDate } from "@/lib/utils/format-date";
-import { Heart } from "lucide-react";
+import { Heart, Calendar } from "lucide-react";
 
 export function StorySection({ className }: StorySectionProps) {
   const data = useTemplateData<
@@ -22,7 +23,7 @@ export function StorySection({ className }: StorySectionProps) {
   if (!story.length) return null;
 
   return (
-    <section className={`w-full py-14 sm:py-20 md:py-24 bg-muted/15 ${className || ""}`}>
+    <section className={`w-full py-14 sm:py-20 md:py-24 bg-muted/15 @container ${className || ""}`}>
       <Container>
         <motion.div
           variants={storyVariants}
@@ -33,17 +34,17 @@ export function StorySection({ className }: StorySectionProps) {
         >
           <SectionTitle title="Our Love Story" subtitle="Kisah Perjalanan Cinta Kami" />
 
-          <div className="relative mt-8 sm:mt-14 w-full max-w-3xl mx-auto px-2">
+          <div className="relative mt-8 sm:mt-12 w-full max-w-3xl mx-auto px-1 sm:px-2">
             {/* Center Timeline Golden Line */}
             <motion.div
               initial={{ height: 0 }}
               whileInView={{ height: "100%" }}
               viewport={{ once: true }}
-              transition={{ duration: 1.5, ease: "easeInOut" }}
-              className="absolute left-4 sm:left-6 md:left-1/2 top-0 w-0.5 bg-linear-to-b from-amber-500/80 via-amber-500/40 to-amber-500/10 md:-translate-x-1/2"
+              transition={{ duration: 1.2, ease: "easeInOut" }}
+              className="absolute left-3.5 @lg:left-1/2 top-0 w-0.5 bg-linear-to-b from-amber-500/80 via-amber-500/40 to-amber-500/10 @lg:-translate-x-1/2"
             />
 
-            <div className="flex flex-col gap-8 sm:gap-12">
+            <div className="flex flex-col gap-6 sm:gap-8 @lg:gap-10">
               {story.map(
                 (
                   item: Record<
@@ -55,32 +56,54 @@ export function StorySection({ className }: StorySectionProps) {
                 ) => {
                   const isEven = idx % 2 === 0;
                   const direction = isEven ? "left" : "right";
+                  const storyImage = item.imageUrl || item.image || item.photoUrl;
 
                   return (
                     <motion.div
                       key={item.id || `story-${idx}`}
                       variants={itemVariants(direction)}
-                      className={`relative flex flex-col md:flex-row items-start ${isEven ? "md:flex-row-reverse" : ""} pl-11 sm:pl-14 md:pl-0`}
+                      className={`relative flex flex-col @lg:flex-row items-start ${
+                        isEven ? "@lg:flex-row-reverse" : ""
+                      } pl-8 sm:pl-9 @lg:pl-0 w-full`}
                     >
                       {/* Glowing Golden Timeline Dot */}
-                      <div className="absolute left-4 sm:left-6 md:left-1/2 top-0 w-4 h-4 rounded-full bg-amber-500 -translate-x-1/2 ring-4 ring-background shadow-md shadow-amber-500/40 flex items-center justify-center">
-                        <Heart className="w-2 h-2 text-white fill-white" />
+                      <div className="absolute left-3.5 @lg:left-1/2 top-2 w-3.5 h-3.5 rounded-full bg-amber-500 -translate-x-1/2 ring-4 ring-background shadow-md shadow-amber-500/40 flex items-center justify-center z-10">
+                        <Heart className="w-1.5 h-1.5 text-white fill-white" />
                       </div>
 
                       {/* Content Card */}
                       <div
-                        className={`w-full md:w-1/2 flex flex-col bg-card/85 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-amber-500/20 shadow-md ${isEven ? "md:mr-8 md:text-left" : "md:ml-8 md:text-left"}`}
+                        className={`w-full @lg:w-[calc(50%-1.5rem)] flex flex-col bg-card/90 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-amber-500/20 shadow-md ${
+                          isEven ? "@lg:mr-auto @lg:text-left" : "@lg:ml-auto @lg:text-left"
+                        }`}
                       >
-                        <span className="inline-block px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold text-[10px] tracking-wider uppercase mb-1.5 w-fit">
-                          {formatDate(item.date, "MMMM yyyy")}
-                        </span>
+                        {storyImage && (
+                          <div className="relative w-full h-44 sm:h-52 rounded-xl overflow-hidden mb-3 border border-amber-500/20 shadow-xs group">
+                            <Image
+                              src={storyImage}
+                              alt={item.title || "Story Photo"}
+                              fill
+                              unoptimized={storyImage.startsWith("data:")}
+                              className="object-cover group-hover:scale-105 transition-transform duration-500"
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                            />
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-1.5 mb-2">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium text-[10px] sm:text-xs tracking-wider uppercase w-fit whitespace-nowrap">
+                            <Calendar className="w-2.5 h-2.5 text-amber-500" />
+                            {formatDate(item.date, "MMMM yyyy")}
+                          </span>
+                        </div>
+
                         <Heading
                           level={4}
-                          className="font-serif font-medium mb-1.5 text-foreground text-sm sm:text-base"
+                          className="font-serif font-medium mb-1.5 text-foreground text-sm sm:text-base leading-snug"
                         >
                           {item.title}
                         </Heading>
-                        <Text className="text-muted-foreground leading-relaxed text-xs">
+                        <Text className="text-muted-foreground leading-relaxed text-xs sm:text-sm">
                           {item.description}
                         </Text>
                       </div>

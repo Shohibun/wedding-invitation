@@ -14,7 +14,7 @@ export class StorageUploader extends StorageClient {
   ) {
     let { data, error } = await this.getBucket(bucket).upload(path, fileBody, {
       contentType: options?.contentType,
-      upsert: options?.upsert ?? false,
+      upsert: options?.upsert ?? true,
     });
 
     if (error && error.message?.toLowerCase().includes("not found")) {
@@ -27,7 +27,7 @@ export class StorageUploader extends StorageClient {
         // Retry upload
         const retry = await this.getBucket(bucket).upload(path, fileBody, {
           contentType: options?.contentType,
-          upsert: options?.upsert ?? false,
+          upsert: options?.upsert ?? true,
         });
         data = retry.data;
         error = retry.error;

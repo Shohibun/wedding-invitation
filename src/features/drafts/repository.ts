@@ -1,14 +1,15 @@
 import { createClient } from "../../lib/supabase/client";
 import { Draft, DraftRepositoryPort, UpdateDraftDTO } from "./types";
 import { DraftMapper } from "./mapper";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 class DraftRepositoryImpl implements DraftRepositoryPort {
   /**
    * Loads the draft data for a specific invitation.
    */
-  async loadDraft(invitationId: string): Promise<Draft | null> {
+  async loadDraft(invitationId: string, customClient?: SupabaseClient): Promise<Draft | null> {
     try {
-      const supabase = createClient();
+      const supabase = customClient || createClient();
 
       const { data, error } = await supabase
         .from("drafts")
@@ -31,7 +32,11 @@ class DraftRepositoryImpl implements DraftRepositoryPort {
   /**
    * Saves updates to the draft data for a specific invitation.
    */
-  async saveDraft(invitationId: string, payload: UpdateDraftDTO): Promise<Draft> {
+  async saveDraft(
+    invitationId: string,
+    payload: UpdateDraftDTO,
+    customClient?: SupabaseClient
+  ): Promise<Draft> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rawData = payload.payload as Record<string, any>;
 
@@ -45,7 +50,7 @@ class DraftRepositoryImpl implements DraftRepositoryPort {
     }
 
     try {
-      const supabase = createClient();
+      const supabase = customClient || createClient();
       const dbPayload = DraftMapper.toPersistence(payload);
 
       // 1. Update the invitations table directly so updated_at & title in Supabase change immediately
