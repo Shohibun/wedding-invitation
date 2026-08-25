@@ -79,14 +79,14 @@ export function BuilderProvider({ initialData, invitationId, children }: Builder
     mode: "onChange",
   });
 
-  // Restore client-side local storage backup into react-hook-form on mount
+  // Restore client-side local storage backup into react-hook-form on mount only as fallback for unsaved fields
   useEffect(() => {
     try {
       const backupStr = localStorage.getItem(`draft_backup_${invitationId}`);
       if (backupStr) {
         const backup = JSON.parse(backupStr);
         if (backup && Object.keys(backup).length > 0) {
-          const merged = deepMerge({}, darsanaDefaultData, initialData, backup);
+          const merged = deepMerge({}, darsanaDefaultData, backup, initialData);
           methods.reset(merged, {
             keepDirtyValues: true,
           });

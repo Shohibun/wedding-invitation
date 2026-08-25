@@ -24,25 +24,33 @@ export class MediaService {
       const { bucket, file, path: customPath } = parsed.data;
 
       // 2. Business Logic: Validation
-      if (payload.media_type === "audio" && !file.type.startsWith("audio/")) {
-        return { data: null, error: "Audio files must be of type audio/*" };
+      const isAudio =
+        file.type.startsWith("audio/") || /\.(mp3|wav|m4a|aac|ogg|webm)$/i.test(file.name || "");
+      const isImage =
+        file.type.startsWith("image/") || /\.(png|jpe?g|webp|gif|svg)$/i.test(file.name || "");
+
+      if (payload.media_type === "audio" && !isAudio) {
+        return { data: null, error: "Audio files must be of type audio/* (.mp3, .wav, .m4a)" };
       }
 
-      if (
-        (payload.media_type === "image" || payload.media_type === "qr") &&
-        !file.type.startsWith("image/")
-      ) {
-        return { data: null, error: "Image/QR files must be of type image/*" };
+      if ((payload.media_type === "image" || payload.media_type === "qr") && !isImage) {
+        return { data: null, error: "Image/QR files must be of type image/* (.jpg, .png, .webp)" };
       }
 
       // 3. Path Generation
       let finalPath = "";
       const prefix = customPath ? customPath.replace(/^\/+|\/+$/g, "") : "";
+      const effectiveType =
+        isAudio && !file.type.startsWith("audio/")
+          ? "audio/mpeg"
+          : isImage && !file.type.startsWith("image/")
+            ? "image/jpeg"
+            : file.type;
 
-      if (file.type.startsWith("image/")) {
-        finalPath = StorageImage.generatePath(prefix, file.type);
-      } else if (file.type.startsWith("audio/")) {
-        finalPath = StorageAudio.generatePath(prefix, file.type);
+      if (isImage) {
+        finalPath = StorageImage.generatePath(prefix, effectiveType);
+      } else if (isAudio) {
+        finalPath = StorageAudio.generatePath(prefix, effectiveType);
       } else {
         return { data: null, error: "Unsupported file type" };
       }
@@ -52,7 +60,7 @@ export class MediaService {
         bucket as StorageBucket,
         finalPath,
         file,
-        file.type
+        effectiveType
       );
 
       const asset = await this.repository.insertAsset({

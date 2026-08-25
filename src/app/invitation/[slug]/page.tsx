@@ -65,10 +65,10 @@ export default async function InvitationPage(props: InvitationPageProps) {
     notFound();
   }
 
-  // Attempt to load the draft configuration
+  // Attempt to load the draft configuration with server-side supabase client
   let draftPayload: Record<string, unknown> | null = null;
   try {
-    const draft = await DraftService.getDraft(invitation.id);
+    const draft = await DraftService.getDraft(invitation.id, supabase);
     if (draft) {
       draftPayload = DraftService.prepareBuilderData(draft) as Record<string, unknown>;
     }

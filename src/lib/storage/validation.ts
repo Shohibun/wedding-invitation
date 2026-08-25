@@ -7,10 +7,16 @@ export const ALLOWED_AUDIO_TYPES = [
   "audio/mp3",
   "audio/wav",
   "audio/x-wav",
+  "audio/wave",
+  "audio/x-pn-wav",
   "audio/mp4",
   "audio/m4a",
+  "audio/x-m4a",
   "audio/aac",
+  "audio/x-aac",
   "audio/ogg",
+  "audio/webm",
+  "application/octet-stream",
 ];
 
 export class StorageValidation {

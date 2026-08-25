@@ -11,6 +11,25 @@ interface UseAutosaveOptions {
   setLastSavedAt: (val: Date | null) => void;
 }
 
+function safeSetLocalStorage(key: string, value: string) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(key, value);
+  } catch (_error) {
+    // If quota exceeded, attempt to clear any non-essential old draft backups
+    try {
+      Object.keys(localStorage).forEach((k) => {
+        if (k.startsWith("draft_backup_") && k !== key) {
+          localStorage.removeItem(k);
+        }
+      });
+      localStorage.setItem(key, value);
+    } catch {
+      // If still exceeding, ignore local storage error to ensure cloud operations succeed
+    }
+  }
+}
+
 export function useAutosave(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   methods: UseFormReturn<Record<string, any>>,
@@ -32,10 +51,8 @@ export function useAutosave(
         setIsSaving(true);
         setSaveStatus("saving");
 
-        // Sync to local storage backup
-        if (typeof window !== "undefined") {
-          localStorage.setItem(`draft_backup_${invitationId}`, JSON.stringify(data));
-        }
+        // Sync to local storage backup safely
+        safeSetLocalStorage(`draft_backup_${invitationId}`, JSON.stringify(data));
 
         // Commit permanently to Supabase DB
         await DraftService.saveDraft(invitationId, { payload: data });
@@ -63,13 +80,9 @@ export function useAutosave(
       }
 
       // Sync locally to localStorage immediately for instant live preview and local persistence
-      if (typeof window !== "undefined" && value) {
-        try {
-          const currentValues = methods.getValues();
-          localStorage.setItem(`draft_backup_${invitationId}`, JSON.stringify(currentValues));
-        } catch {
-          // Ignore quota error
-        }
+      if (value) {
+        const currentValues = methods.getValues();
+        safeSetLocalStorage(`draft_backup_${invitationId}`, JSON.stringify(currentValues));
       }
 
       // Mark status as idle / unsaved changes locally until user clicks Simpan button

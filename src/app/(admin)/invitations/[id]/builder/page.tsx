@@ -29,7 +29,7 @@ export default async function BuilderPage({ params }: { params: Promise<{ id: st
     notFound();
   }
 
-  const draft = await DraftService.getDraft(id);
+  const draft = await DraftService.getDraft(id, supabase);
   let payload = draft ? DraftService.prepareBuilderData(draft) : null;
 
   if (!payload) {

@@ -1,13 +1,14 @@
 import { Draft } from "./types";
 import { DraftDataSchema } from "./schema";
 import { draftRepository } from "./repository";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 export const DraftService = {
   /**
    * Retrieves a draft for the given invitation, ready for the Builder.
    */
-  getDraft: async (invitationId: string): Promise<Draft | null> => {
-    return await draftRepository.loadDraft(invitationId);
+  getDraft: async (invitationId: string, customClient?: SupabaseClient): Promise<Draft | null> => {
+    return await draftRepository.loadDraft(invitationId, customClient);
   },
 
   /**
@@ -15,12 +16,13 @@ export const DraftService = {
    */
   saveDraft: async (
     invitationId: string,
-    payload: { payload: Record<string, unknown> }
+    payload: { payload: Record<string, unknown> },
+    customClient?: SupabaseClient
   ): Promise<Draft> => {
     // 1. Strict Zod Validation of the payload data
     const validatedData = DraftDataSchema.parse(payload.payload);
 
-    return await draftRepository.saveDraft(invitationId, { payload: validatedData });
+    return await draftRepository.saveDraft(invitationId, { payload: validatedData }, customClient);
   },
 
   /**

@@ -97,17 +97,19 @@ export function useMediaUpload(options: UseMediaUploadOptions) {
       const result = await action(formData);
 
       if (result.error) {
-        // If storage bucket is missing or unconfigured on Supabase, fallback to Data URL
+        // If image storage bucket is missing on Supabase, fallback to Data URL for images under 1MB
         if (
-          result.error.toLowerCase().includes("bucket not found") ||
-          result.error.toLowerCase().includes("not found")
+          options.mediaType !== "audio" &&
+          (result.error.toLowerCase().includes("bucket not found") ||
+            result.error.toLowerCase().includes("not found")) &&
+          fileToUpload.size < 1024 * 1024
         ) {
           const dataUrl = await fileToDataUrl(fileToUpload);
           setProgress(100);
           if (options.onSuccess) {
             options.onSuccess(dataUrl);
           }
-          toast.success(`${mediaLabel} berhasil dimuat (Offline/Base64 mode)`);
+          toast.success(`${mediaLabel} berhasil dimuat (Preview mode)`);
           return { url: dataUrl };
         }
         throw new Error(result.error);
